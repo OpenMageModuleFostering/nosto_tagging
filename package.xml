@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <package>
   <name>Nosto_Tagging</name>
-  <version>2.8.1</version>
+  <version>2.8.2</version>
   <stability>stable</stability>
-  <license uri="http://opensource.org/licenses/osl-3.0.php">OSL</license>
+  <license uri="https://opensource.org/licenses/OSL-3.0">OSL</license>
   <channel>community</channel>
   <extends/>
   <summary>Personalization for Magento</summary>
@@ -39,7 +39,7 @@
             </dir>
             <file name="Cart.php" hash="c964dcfc2be12646b8f81b4c3d1c0ca6"/>
             <file name="Category.php" hash="c581a779c9bce1d149af21556eee9836"/>
-            <file name="Customer.php" hash="d6eaf09edbc14b537c5cfabb48afb7a2"/>
+            <file name="Customer.php" hash="5f025903a9a0236a0933976652b0ca3a"/>
             <file name="Element.php" hash="686d217784356fb2d784081a4a0cd40a"/>
             <file name="Embed.php" hash="adf20605d8583c41d001288c3cb769bb"/>
             <file name="Meta.php" hash="4d0e7b19695614fcde6e497979cdac99"/>
@@ -58,7 +58,7 @@
             <file name="Date.php" hash="7d1b55282770627291f781dc9dd55eff"/>
             <file name="Oauth.php" hash="a9ddbf62971f77b3e86c05bb4a23ee66"/>
             <file name="Price.php" hash="18e911306dd3eeb3b6d48ad84fa6f768"/>
-            <file name="Setup.php" hash="b129c5dad0c285615414d9a9345dea96"/>
+            <file name="Setup.php" hash="bc8085939a65b26b3cdbf9b812f48535"/>
             <file name="Url.php" hash="46303a9ea11c3d9c1ab3d27415381dd3"/>
           </dir>
           <dir name="Model">
@@ -146,12 +146,13 @@
           <dir name="etc">
             <file name="adminhtml.xml" hash="94c1710b2a8f0b7b0a15918f7c88d975"/>
             <file name="cache.xml" hash="b034f279196c596f2602102bd5e44c2c"/>
-            <file name="config.xml" hash="7bd3c51a1432c468cca56bdb12860eea"/>
+            <file name="config.xml" hash="44fe3c6d9ae9d7b74570232481d4bdfd"/>
             <file name="system.xml" hash="376a97fabcaab7ec6b433e3a3fcde835"/>
           </dir>
           <dir name="sql">
             <dir name="nosto_customer_reference_setup">
               <file name="mysql4-install-2.8.0.php" hash="a50fd9bb9d3276e305a84dc9057332c8"/>
+              <file name="mysql4-upgrade-2.8.0-2.8.2.php" hash="94ead241a19c8b71a564ba598cbdfeb1"/>
             </dir>
             <dir name="tagging_setup">
               <file name="mysql4-install-1.2.0.php" hash="be30ee06f46c101c5f078f9d55bb139d"/>
