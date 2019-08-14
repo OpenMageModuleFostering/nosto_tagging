@@ -1,26 +1,37 @@
 <?php
 /**
- * 2013-2016 Nosto Solutions Ltd
+ * Copyright (c) 2016, Nosto Solutions Ltd
+ * All rights reserved.
  *
- * NOTICE OF LICENSE
+ * Redistribution and use in source and binary forms, with or without modification,
+ * are permitted provided that the following conditions are met:
  *
- * This source file is subject to the Academic Free License (AFL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
- * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/afl-3.0.php
- * If you did not receive a copy of the license and are unable to
- * obtain it through the world-wide-web, please send an email
- * to contact@nosto.com so we can send you a copy immediately.
+ * 1. Redistributions of source code must retain the above copyright notice,
+ * this list of conditions and the following disclaimer.
  *
- * DISCLAIMER
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
+ * and/or other materials provided with the distribution.
  *
- * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
- * versions in the future. If you wish to customize PrestaShop for your
- * needs please refer to http://www.prestashop.com for more information.
+ * 3. Neither the name of the copyright holder nor the names of its contributors
+ * may be used to endorse or promote products derived from this software without
+ * specific prior written permission.
  *
- * @author    Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2013-2016 Nosto Solutions Ltd
- * @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+ * ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ * @author Nosto Solutions Ltd <contact@nosto.com>
+ * @copyright 2016 Nosto Solutions Ltd
+ * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
+ *
  */
 
 /**
@@ -84,6 +95,40 @@ abstract class NostoAccountMeta implements NostoAccountMetaDataInterface
     protected $defaultVariationId = false;
 
     /**
+     * @var string details
+     */
+    protected $details = false;
+
+    /**
+     * @var string sign up api token
+     */
+    protected $signupApiToken;
+
+    /**
+     * @var string platform name
+     */
+    protected $platform;
+
+    /**
+     * @var string partner code
+     */
+    protected $partnerCode;
+
+    /**
+     * Constructor
+     *
+     * @param string $platform
+     * @param string $signupApiToken
+     * @param string $partnerCode
+     */
+    public function __construct($platform, $signupApiToken, $partnerCode)
+    {
+        $this->platform = $platform;
+        $this->signupApiToken = $signupApiToken;
+        $this->partnerCode = $partnerCode;
+    }
+
+    /**
      * Sets the store title.
      *
      * @param string $title the store title.
@@ -124,14 +169,6 @@ abstract class NostoAccountMeta implements NostoAccountMetaDataInterface
     {
         return $this->name;
     }
-
-    /**
-     * The name of the platform the account is used on.
-     * A list of valid platform names is issued by Nosto.
-     *
-     * @return string the platform names.
-     */
-    abstract public function getPlatform();
 
     /**
      * Sets the store front page url.
@@ -238,21 +275,6 @@ abstract class NostoAccountMeta implements NostoAccountMetaDataInterface
     }
 
     /**
-     * The API token used to identify an account creation.
-     * This token is platform specific and issued by Nosto.
-     *
-     * @return string the API token.
-     */
-    abstract public function getSignUpApiToken();
-
-    /**
-     * Returns the partner code
-     *
-     * @return string
-     */
-    abstract public function getPartnerCode();
-
-    /**
      * Returns an array of currencies used for this account
      *
      * @return array
@@ -301,17 +323,62 @@ abstract class NostoAccountMeta implements NostoAccountMetaDataInterface
         $this->defaultVariationId = $defaultVariationId;
     }
 
-
-    /*
-     * Returns the default variation id
-     *
-     * @return string
-     */
     /**
+     * Return the default variation id
+     *
      * @return string
      */
     public function getDefaultVariationId()
     {
         return $this->defaultVariationId;
+    }
+
+    /**
+     * Sets the details
+     * @param string $details
+     */
+    public function setDetails($details)
+    {
+        $this->details = $details;
+    }
+
+    /**
+     * Returns the account details
+     *
+     * @return string
+     */
+    public function getDetails()
+    {
+        return $this->details;
+    }
+
+    /**
+     * Returns the partner code
+     *
+     * @return string
+     */
+    public function getPartnerCode()
+    {
+        return $this->partnerCode;
+    }
+
+    /**
+     * Returns the name of the platform
+     *
+     * @return string
+     */
+    public function getPlatform()
+    {
+        return $this->platform;
+    }
+
+    /**
+     * Returns the signup api token
+     *
+     * @return string
+     */
+    public function getSignupApiToken()
+    {
+        return $this->signupApiToken;
     }
 }

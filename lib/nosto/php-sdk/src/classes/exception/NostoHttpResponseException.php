@@ -35,11 +35,8 @@
  */
 
 /**
- * Base class that all Nosto helpers must extend.
- * Helper classes are used in the following manner:
- *
- * Nosto::helper('name')->invokeMethod();
+ * Nosto exception class for api response errors within the sdk.
  */
-abstract class NostoHelper
+class NostoHttpResponseException extends NostoHttpException
 {
 }

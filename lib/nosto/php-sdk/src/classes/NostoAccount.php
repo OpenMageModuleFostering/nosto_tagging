@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2015, Nosto Solutions Ltd
+ * Copyright (c) 2016, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,8 +29,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2015 Nosto Solutions Ltd
+ * @copyright 2016 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
+ *
  */
 
 /**
@@ -109,6 +110,10 @@ class NostoAccount extends NostoObject implements NostoAccountInterface, NostoVa
             $params['api_tokens'][] = 'api_'.$name;
         }
 
+        if ($meta->getDetails()) {
+            $params['details'] = $meta->getDetails();
+        }
+
         $request = new NostoApiRequest();
         $request->setPath(NostoApiRequest::PATH_SIGN_UP);
         $request->setReplaceParams(array('{lang}' => $meta->getLanguageCode()));
@@ -116,8 +121,9 @@ class NostoAccount extends NostoObject implements NostoAccountInterface, NostoVa
         $request->setAuthBasic('', $meta->getSignUpApiToken());
         $response = $request->post(json_encode($params));
 
+        /* In case of no result we have not been able to make the API call */
         if ($response->getCode() !== 200) {
-            Nosto::throwHttpException('Nosto account could not be created.', $request, $response);
+            Nosto::throwHttpException('Failed to create Nosto account', $request, $response);
         }
 
         $account = new self($meta->getPlatform().'-'.$meta->getName());
