@@ -82,6 +82,45 @@ class NostoHttpRequestAdapterSocket extends NostoHttpRequestAdapter
     }
 
     /**
+     * @inheritdoc
+     */
+    public function put($url, array $options = array())
+    {
+        $this->init($options);
+        return $this->send(
+            $url,
+            array(
+                'http' => array(
+                    'method' => 'PUT',
+                    'header' => implode("\r\n", $this->headers),
+                    'content' => $this->content,
+                    // Fetch the content even on failure status codes.
+                    'ignore_errors' => true,
+                ),
+            )
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function delete($url, array $options = array())
+    {
+        $this->init($options);
+        return $this->send(
+            $url,
+            array(
+                'http' => array(
+                    'method' => 'DELETE',
+                    'header' => implode("\r\n", $this->headers),
+                    // Fetch the content even on failure status codes.
+                    'ignore_errors' => true,
+                ),
+            )
+        );
+    }
+
+    /**
      * Sends the request and creates a NostoHttpResponse instance containing the response headers and body.
      *
      * @param string $url the url for the request.
@@ -96,11 +135,6 @@ class NostoHttpRequestAdapterSocket extends NostoHttpRequestAdapter
         // is executed (http://php.net/manual/en/reserved.variables.httpresponseheader.php).
         $http_response_header = array();
         $result = @file_get_contents($url, false, $context);
-        $response = new NostoHttpResponse();
-        if (!empty($http_response_header)) {
-            $response->setHeaders($http_response_header);
-        }
-        $response->setResult($result);
-        return $response;
+        return new NostoHttpResponse($http_response_header, $result);
     }
 }

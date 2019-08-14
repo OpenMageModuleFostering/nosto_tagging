@@ -60,7 +60,7 @@ class Nosto_Tagging_Model_Meta_Order extends Mage_Core_Model_Abstract implements
     protected $_paymentProvider;
 
     /**
-     * @var Nosto_Tagging_Model_Meta_Order_Buyer The user info of the buyer.
+     * @var Nosto_Tagging_Model_Meta_Order_Buyer the user info of the buyer.
      */
     protected $_buyer;
 
@@ -68,6 +68,11 @@ class Nosto_Tagging_Model_Meta_Order extends Mage_Core_Model_Abstract implements
      * @var Nosto_Tagging_Model_Meta_Order_Item[] the items in the order.
      */
     protected $_items = array();
+
+    /**
+     * @var Nosto_Tagging_Model_Meta_Order_Status the order status.
+     */
+    protected $_orderStatus;
 
     /**
      * @inheritdoc
@@ -129,6 +134,16 @@ class Nosto_Tagging_Model_Meta_Order extends Mage_Core_Model_Abstract implements
     }
 
     /**
+     * Returns the order status model.
+     *
+     * @return NostoOrderStatusInterface the model.
+     */
+    public function getOrderStatus()
+    {
+        return $this->_orderStatus;
+    }
+
+    /**
      * Loads the order info from a Magento order model.
      *
      * @param Mage_Sales_Model_Order $order the order model.
@@ -140,6 +155,9 @@ class Nosto_Tagging_Model_Meta_Order extends Mage_Core_Model_Abstract implements
 
         $method = $order->getPayment()->getMethodInstance();
         $this->_paymentProvider = $method->getCode();
+
+        $this->_orderStatus = new Nosto_Tagging_Model_Meta_Order_Status();
+        $this->_orderStatus->loadData($order);
 
         $this->_buyer = new Nosto_Tagging_Model_Meta_Order_Buyer();
         $this->_buyer->loadData($order);

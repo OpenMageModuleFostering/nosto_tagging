@@ -43,6 +43,8 @@ class NostoApiRequest extends NostoHttpRequest
     const PATH_SIGN_UP = '/accounts/create/{lang}';
     const PATH_SSO_AUTH = '/users/sso/{email}';
     const PATH_PRODUCT_RE_CRAWL = '/products/recrawl';
+    const PATH_PRODUCTS_UPSERT = '/v1/products/upsert';
+    const PATH_PRODUCTS_DISCONTINUE = '/v1/products/discontinue';
 
     /**
      * @var string base url for the nosto api.

@@ -73,4 +73,11 @@ interface NostoOrderInterface
      * @return NostoOrderPurchasedItemInterface[] the meta data models.
      */
     public function getPurchasedItems();
+
+    /**
+     * Returns the order status model.
+     *
+     * @return NostoOrderStatusInterface the model.
+     */
+    public function getOrderStatus();
 }

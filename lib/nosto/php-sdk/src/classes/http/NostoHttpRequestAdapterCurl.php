@@ -78,6 +78,45 @@ class NostoHttpRequestAdapterCurl extends NostoHttpRequestAdapter
     }
 
     /**
+     * @inheritdoc
+     */
+    public function put($url, array $options = array())
+    {
+        $this->init($options);
+        return $this->send(
+            array(
+                CURLOPT_URL => $url,
+                CURLOPT_POSTFIELDS => $this->content,
+                CURLOPT_CUSTOMREQUEST => 'PUT',
+                CURLOPT_HEADER => 1,
+                CURLOPT_FRESH_CONNECT => 1,
+                CURLOPT_RETURNTRANSFER => 1,
+                CURLOPT_FORBID_REUSE => 1,
+                CURLOPT_TIMEOUT => 60,
+            )
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function delete($url, array $options = array())
+    {
+        $this->init($options);
+        return $this->send(
+            array(
+                CURLOPT_URL => $url,
+                CURLOPT_CUSTOMREQUEST => 'DELETE',
+                CURLOPT_HEADER => 1,
+                CURLOPT_FRESH_CONNECT => 1,
+                CURLOPT_RETURNTRANSFER => 1,
+                CURLOPT_FORBID_REUSE => 1,
+                CURLOPT_TIMEOUT => 60,
+            )
+        );
+    }
+
+    /**
      * Sends the request and creates a NostoHttpResponse instance containing the response headers and body.
      *
      * @param array $curlOptions options for curl_setopt_array().
@@ -91,20 +130,11 @@ class NostoHttpRequestAdapterCurl extends NostoHttpRequestAdapter
         $ch = curl_init();
         curl_setopt_array($ch, $curlOptions);
         $result = curl_exec($ch);
-        $response = new NostoHttpResponse();
-        if ($result !== false) {
-            $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-            $header = substr($result, 0, $headerSize);
-            $header = explode("\r\n", $header);
-            $body = substr($result, $headerSize);
-            if (!empty($header)) {
-                $response->setHeaders($header);
-            }
-            $response->setResult($body);
-        } else {
-            $response->setMessage(curl_error($ch));
-        }
-        curl_close($ch);
-        return $response;
+		$headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+		$headers = explode("\r\n", substr($result, 0, $headerSize));
+		$body = substr($result, $headerSize);
+		$message = curl_error($ch);
+		curl_close($ch);
+        return new NostoHttpResponse($headers, $body, $message);
     }
 }

@@ -34,43 +34,54 @@
  */
 
 /**
- * Order collection for historical data exports.
- * Supports only items implementing "NostoOrderInterface".
+ * Base class for all Nosto object collection classes.
+ * The base class provides the functionality to validate the items added to the collection.
+ * The collection behaves like an array. making it easy to add items to it and iterate over it.
  */
-class NostoExportOrderCollection extends NostoOrderCollection implements NostoExportCollectionInterface
+abstract class NostoCollection extends ArrayObject
 {
+    /**
+     * @var string the type of items this collection can contain.
+     */
+    protected $validItemType = '';
+
     /**
      * @inheritdoc
      */
-    public function getJson()
+    public function offsetSet($index, $newval)
     {
-        $array = array();
-        /** @var NostoOrderInterface $item */
-        foreach ($this->getArrayCopy() as $item) {
-            $data = array(
-                'order_number' => $item->getOrderNumber(),
-                'order_status_code' => $item->getOrderStatus()->getCode(),
-                'order_status_label' => $item->getOrderStatus()->getLabel(),
-                'created_at' => Nosto::helper('date')->format($item->getCreatedDate()),
-                'buyer' => array(
-                    'first_name' => $item->getBuyerInfo()->getFirstName(),
-                    'last_name' => $item->getBuyerInfo()->getLastName(),
-                    'email' => $item->getBuyerInfo()->getEmail(),
-                ),
-				'payment_provider' => $item->getPaymentProvider(),
-                'purchased_items' => array(),
-            );
-            foreach ($item->getPurchasedItems() as $orderItem) {
-                $data['purchased_items'][] = array(
-                    'product_id' => $orderItem->getProductId(),
-                    'quantity' => (int)$orderItem->getQuantity(),
-                    'name' => $orderItem->getName(),
-                    'unit_price' => Nosto::helper('price')->format($orderItem->getUnitPrice()),
-                    'price_currency_code' => strtoupper($orderItem->getCurrencyCode()),
-                );
+        $this->validate($newval);
+        parent::offsetSet($index, $newval);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function append($value)
+    {
+        $this->validate($value);
+        parent::append($value);
+    }
+
+    /**
+     * Validates that the given value is of correct type.
+     *
+     * @see NostoCollection::$validItemType
+     * @param mixed $value the value.
+     * @throws NostoException if the value is of invalid type.
+     */
+    protected function validate($value)
+    {
+        if (!is_a($value, $this->validItemType)) {
+            $valueType = gettype($value);
+            if ($valueType === 'object') {
+                $valueType = get_class($value);
             }
-            $array[] = $data;
+            throw new NostoException(sprintf(
+                'Collection supports items of type "%s" (type "%s" given)',
+                $this->validItemType,
+                $valueType
+            ));
         }
-        return json_encode($array);
     }
 }

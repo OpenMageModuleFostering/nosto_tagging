@@ -59,6 +59,11 @@ class NostoHttpRequest
     protected $headers = array();
 
     /**
+     * @var string the request content (populated in post() and put() methods).
+     */
+    protected $content = '';
+
+    /**
      * @var array list of optional query params that are added to the request url.
      */
     protected $queryParams = array();
@@ -331,11 +336,34 @@ class NostoHttpRequest
      */
     public function post($content)
     {
+        $this->content = $content;
         $url = $this->url;
         if (!empty($this->replaceParams)) {
             $url = self::buildUri($url, $this->replaceParams);
         }
         return $this->adapter->post(
+            $url,
+            array(
+                'headers' => $this->headers,
+                'content' => $content,
+            )
+        );
+    }
+
+    /**
+     * Sends a PUT request.
+     *
+     * @param string $content
+     * @return NostoHttpResponse
+     */
+    public function put($content)
+    {
+        $this->content = $content;
+        $url = $this->url;
+        if (!empty($this->replaceParams)) {
+            $url = self::buildUri($url, $this->replaceParams);
+        }
+        return $this->adapter->put(
             $url,
             array(
                 'headers' => $this->headers,
@@ -364,5 +392,41 @@ class NostoHttpRequest
                 'headers' => $this->headers,
             )
         );
+    }
+
+    /**
+     * Sends a DELETE request.
+     *
+     * @return NostoHttpResponse
+     */
+    public function delete()
+    {
+        $url = $this->url;
+        if (!empty($this->replaceParams)) {
+            $url = self::buildUri($url, $this->replaceParams);
+        }
+        return $this->adapter->delete(
+            $url,
+            array(
+                'headers' => $this->headers,
+            )
+        );
+    }
+
+    /**
+     * Converts the request to a string and returns it.
+     * Used when logging http request errors.
+     */
+    public function __toString()
+    {
+        $url = $this->url;
+        if (!empty($this->replaceParams)) {
+            $url = self::buildUri($url, $this->replaceParams);
+        }
+        return serialize(array(
+            'url' => $url,
+            'headers' => $this->headers,
+            'body' => $this->content,
+        ));
     }
 }

@@ -34,43 +34,13 @@
  */
 
 /**
- * Order collection for historical data exports.
+ * Order object collection.
  * Supports only items implementing "NostoOrderInterface".
  */
-class NostoExportOrderCollection extends NostoOrderCollection implements NostoExportCollectionInterface
+class NostoOrderCollection extends NostoCollection
 {
     /**
      * @inheritdoc
      */
-    public function getJson()
-    {
-        $array = array();
-        /** @var NostoOrderInterface $item */
-        foreach ($this->getArrayCopy() as $item) {
-            $data = array(
-                'order_number' => $item->getOrderNumber(),
-                'order_status_code' => $item->getOrderStatus()->getCode(),
-                'order_status_label' => $item->getOrderStatus()->getLabel(),
-                'created_at' => Nosto::helper('date')->format($item->getCreatedDate()),
-                'buyer' => array(
-                    'first_name' => $item->getBuyerInfo()->getFirstName(),
-                    'last_name' => $item->getBuyerInfo()->getLastName(),
-                    'email' => $item->getBuyerInfo()->getEmail(),
-                ),
-				'payment_provider' => $item->getPaymentProvider(),
-                'purchased_items' => array(),
-            );
-            foreach ($item->getPurchasedItems() as $orderItem) {
-                $data['purchased_items'][] = array(
-                    'product_id' => $orderItem->getProductId(),
-                    'quantity' => (int)$orderItem->getQuantity(),
-                    'name' => $orderItem->getName(),
-                    'unit_price' => Nosto::helper('price')->format($orderItem->getUnitPrice()),
-                    'price_currency_code' => strtoupper($orderItem->getCurrencyCode()),
-                );
-            }
-            $array[] = $data;
-        }
-        return json_encode($array);
-    }
+    protected $validItemType = 'NostoOrderInterface';
 }
