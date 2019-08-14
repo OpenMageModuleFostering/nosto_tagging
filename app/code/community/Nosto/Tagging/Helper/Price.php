@@ -87,7 +87,7 @@ class Nosto_Tagging_Helper_Price extends Mage_Core_Helper_Abstract
             case Mage_Catalog_Model_Product_Type::TYPE_BUNDLE:
                 // Get the bundle product "from" price.
                 $price = $product->getPriceModel()
-                    ->getTotalPrices($product, 'min', true);
+                    ->getTotalPrices($product, 'min', $inclTax);
                 break;
 
             case Mage_Catalog_Model_Product_Type::TYPE_GROUPED:
@@ -107,22 +107,68 @@ class Nosto_Tagging_Helper_Price extends Mage_Core_Helper_Abstract
                     ->getFirstItem();
                 if ($tmpProduct) {
                     $price = $tmpProduct->getMinimalPrice();
+                    if ($inclTax) {
+                        $price = Mage::helper('tax')
+                            ->getPrice($tmpProduct, $price, true);
+                    }
                 }
                 break;
 
             default:
-                if ($finalPrice) {
-                    $price = $product->getFinalPrice();
-                } else {
-                    $price = $product->getPrice();
+                $price = $finalPrice
+                    ? $product->getFinalPrice()
+                    : $product->getPrice();
+                if ($inclTax) {
+                    $price = Mage::helper('tax')
+                        ->getPrice($product, $price, true);
                 }
                 break;
         }
 
-        if ($inclTax) {
-            return Mage::helper('tax')->getPrice($product, $price, true);
-        } else {
-            return $price;
+        return $price;
+    }
+
+    /**
+     * @param float $price
+     * @param Mage_Core_Model_Store $store
+     * @return float
+     */
+    public function convertToDefaultCurrency($price, Mage_Core_Model_Store $store)
+    {
+        if (!is_numeric($price)) {
+            Mage::log(
+                sprintf(
+                    'price must be a numeric value in %s, got %s.',
+                    __CLASS__,
+                    $price
+                ),
+                Zend_Log::WARN,
+                Nosto_Tagging_Model_Base::LOG_FILE_NAME
+            );
+            $price = 0;
         }
+        return Mage::helper('directory')->currencyConvert(
+            $price,
+            $store->getBaseCurrency()->getCode(),
+            $store->getDefaultCurrency()->getCode()
+        );
+    }
+
+    /**
+     * Get the final price in base currency for an ordered item including
+     * taxes as discounts.
+     *
+     * @param Mage_Sales_Model_Order_Item $item the item model.
+     *
+     * @return float
+     */
+    public function getItemFinalPriceInclTax(Mage_Sales_Model_Order_Item $item)
+    {
+        $quantity = (double)$item->getQtyOrdered();
+        $price = $item->getBaseRowTotal() + $item->getBaseTaxAmount() + $item->getBaseHiddenTaxAmount() - $item->getBaseDiscountAmount();
+        if ($quantity > 1) {
+            $price = round($price/$quantity, 2);
+        }
+        return $price;
     }
 }

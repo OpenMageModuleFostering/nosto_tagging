@@ -64,8 +64,8 @@ class Nosto_tagging_OauthController extends Mage_Core_Controller_Front_Action
         }
 
         $request = $this->getRequest();
+        $store = Mage::app()->getStore();
         if (($code = $request->getParam('code')) !== null) {
-            $store = Mage::app()->getStore();
             try {
                 $account = NostoAccount::syncFromNosto(
                     Mage::helper('nosto_tagging/oauth')->getMetaData($store),
@@ -76,18 +76,20 @@ class Nosto_tagging_OauthController extends Mage_Core_Controller_Front_Action
                         'message_type' => NostoMessage::TYPE_SUCCESS,
                         'message_code' => NostoMessage::CODE_ACCOUNT_CONNECT,
                         'store' => (int)$store->getId(),
+                        '_store' => Mage_Core_Model_App::ADMIN_STORE_ID,
                     );
                 } else {
                     throw new NostoException('Failed to connect account');
                 }
             } catch (NostoException $e) {
                 Mage::log(
-                    "\n" . $e->__toString(), Zend_Log::ERR, 'nostotagging.log'
+                    "\n" . $e->__toString(), Zend_Log::ERR, Nosto_Tagging_Model_Base::LOG_FILE_NAME
                 );
                 $params = array(
                     'message_type' => NostoMessage::TYPE_ERROR,
                     'message_code' => NostoMessage::CODE_ACCOUNT_CONNECT,
                     'store' => (int)$store->getId(),
+                    '_store' => Mage_Core_Model_App::ADMIN_STORE_ID,
                 );
             }
             $this->_redirect('adminhtml/nosto/redirectProxy', $params);
@@ -99,13 +101,14 @@ class Nosto_tagging_OauthController extends Mage_Core_Controller_Front_Action
             if (($desc = $request->getParam('error_description')) !== null) {
                 $logMsg .= ' - ' . $desc;
             }
-            Mage::log("\n" . $logMsg, Zend_Log::ERR, 'nostotagging.log');
+            Mage::log("\n" . $logMsg, Zend_Log::ERR, Nosto_Tagging_Model_Base::LOG_FILE_NAME);
             $this->_redirect(
                 'adminhtml/nosto/redirectProxy', array(
                     'message_type' => NostoMessage::TYPE_ERROR,
                     'message_code' => NostoMessage::CODE_ACCOUNT_CONNECT,
                     'message_text' => $desc,
-                    'store' => (int)Mage::app()->getStore()->getId(),
+                    'store' => (int)$store->getId(),
+                    '_store' => Mage_Core_Model_App::ADMIN_STORE_ID,
                 )
             );
         } else {

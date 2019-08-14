@@ -45,6 +45,16 @@ class Nosto_Tagging_Helper_Data extends Mage_Core_Helper_Abstract
     const XML_PATH_IMAGE_VERSION = 'nosto_tagging/image_options/image_version';
 
     /**
+     * @var string the name of the cookie where the Nosto ID can be found.
+     */
+    const COOKIE_NAME = '2c_cId';
+
+    /**
+     * @var string the name of the cookie where the Nosto ID can be found.
+     */
+    const VISITOR_HASH_ALGO = 'sha256';
+
+    /**
      * @inheritdoc
      */
     public function quoteEscape($data, $addSlashes = false)
