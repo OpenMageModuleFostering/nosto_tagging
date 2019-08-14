@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016, Nosto Solutions Ltd
+ * Copyright (c) 2015, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,9 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2016 Nosto Solutions Ltd
+ * @copyright 2015 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
- *
  */
 
 /**
@@ -47,7 +46,7 @@ interface NostoAccountMetaDataInterface
     public function getTitle();
 
     /**
-     * The name of the Nosto account.
+     * The name of the account to create.
      * This has to follow the pattern of "[platform name]-[8 character lowercase alpha numeric string]".
      *
      * @return string the account name.
@@ -119,35 +118,4 @@ interface NostoAccountMetaDataInterface
      * @return string|null the partner code or null if none exist.
      */
     public function getPartnerCode();
-
-    /**
-     * Returns a list of currency objects supported by the store the account is to be created for.
-     *
-     * @return NostoCurrency[] the currencies.
-     */
-    public function getCurrencies();
-
-    /**
-     * Returns if exchange rates should be used for handling
-     * multiple currencies. Please note that the method only tells if the
-     * setting is active. Method does not take account whether multiple
-     * currencies actually exist or are used.
-     *
-     * @return boolean if multi variants are used
-     */
-    public function getUseCurrencyExchangeRates();
-
-    /**
-     * Returns the default variation id
-     *
-     * @return string
-     */
-    public function getDefaultVariationId();
-
-    /**
-     * Returns the account details
-     *
-     * @return string
-     */
-    public function getDetails();
 }

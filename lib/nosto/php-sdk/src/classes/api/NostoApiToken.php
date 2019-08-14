@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016, Nosto Solutions Ltd
+ * Copyright (c) 2015, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,9 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2016 Nosto Solutions Ltd
+ * @copyright 2015 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
- *
  */
 
 /**
@@ -39,11 +38,6 @@
  */
 class NostoApiToken extends NostoObject implements NostoValidatableInterface
 {
-    const API_SSO = 'sso';
-    const API_PRODUCTS = 'products';
-    const API_EXCHANGE_RATES = 'rates';
-    const API_SETTINGS = 'settings';
-
     /**
      * @var string the token name, must be one of the defined tokens from self::$tokenNames.
      */
@@ -58,10 +52,8 @@ class NostoApiToken extends NostoObject implements NostoValidatableInterface
      * @var array list of valid api tokens to request from Nosto.
      */
     public static $tokenNames = array(
-        self::API_SSO,
-        self::API_PRODUCTS,
-        self::API_EXCHANGE_RATES,
-        self::API_SETTINGS
+        'sso',
+        'products'
     );
 
     /**

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016, Nosto Solutions Ltd
+ * Copyright (c) 2015, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,9 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2016 Nosto Solutions Ltd
+ * @copyright 2015 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
- *
  */
 
 /**
@@ -39,65 +38,4 @@
  */
 class NostoHttpException extends NostoException
 {
-    /**
-     * @var NostoHttpResponse
-     */
-    private $response;
-
-    /**
-     * @var NostoHttpRequest
-     */
-    private $request;
-
-    /**
-     * NostoHttpException constructor.
-     * @param string $message
-     * @param null $code
-     * @param Throwable|null $previous
-     * @param NostoHttpRequest|null $request
-     * @param NostoHttpResponse|null $response
-     */
-    public function __construct(
-        $message = "",
-        $code = null,
-        Throwable $previous = null,
-        NostoHttpRequest $request = null,
-        NostoHttpResponse $response = null
-    ) {
-        parent::__construct($message, $code, $previous);
-        $this->setRequest($request);
-        $this->setResponse($response);
-    }
-
-    /**
-     * @return NostoHttpRequest
-     */
-    public function getRequest()
-    {
-        return $this->request;
-    }
-
-    /**
-     * @param NostoHttpRequest $request
-     */
-    public function setRequest(NostoHttpRequest $request)
-    {
-        $this->request = $request;
-    }
-
-    /**
-     * @return NostoHttpResponse
-     */
-    public function getResponse()
-    {
-        return $this->response;
-    }
-
-    /**
-     * @param NostoHttpResponse $response
-     */
-    public function setResponse(NostoHttpResponse $response)
-    {
-        $this->response = $response;
-    }
 }
