@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>Nosto_Tagging</name>
-  <version>2.7.1</version>
+  <version>2.8.0</version>
   <stability>stable</stability>
   <license uri="http://opensource.org/licenses/osl-3.0.php">OSL</license>
   <channel>community</channel>
@@ -23,60 +23,76 @@
       <dir name="Nosto">
         <dir name="Tagging">
           <dir name="Block">
-            <file name="Addtocart.php" hash="b5107b218baecbbcceeeeed451e65c3f"/>
+            <file name="Addtocart.php" hash="5826823458e7e8b3328b3c69a78096de"/>
             <dir name="Adminhtml">
-              <file name="Iframe.php" hash="322da1336a0ce7cd7222fc69ef819693"/>
+              <file name="Iframe.php" hash="a1097337517f9cec22db015b82c22e25"/>
+              <file name="Notifications.php" hash="a516e30a101c1e2c51955d7cb403d5b4"/>
+              <dir name="System">
+                <dir name="Config">
+                  <dir name="Currency">
+                    <file name="Formats.php" hash="40d2263695ef3a33bd665c0a4704a776"/>
+                    <file name="Method.php" hash="3aa8ec759e8ef78af1c1af6c89e77c8c"/>
+                  </dir>
+                </dir>
+              </dir>
               <file name="Wizard.php" hash="7a67ca3cf25ccd8085426a3bdda3be9b"/>
             </dir>
-            <file name="Cart.php" hash="2d4ec5f8f3adc5dc9760b6d577604773"/>
-            <file name="Category.php" hash="fcdd8eabff592fbfd32e70e9e8ffac48"/>
-            <file name="Customer.php" hash="866c1150fb798acd475814c793670f6b"/>
-            <file name="Element.php" hash="1ed6a3f6e815a36c0cc8e2ac26e97237"/>
-            <file name="Embed.php" hash="5c4cf0bcc78e28df5fd877c798e8293e"/>
-            <file name="Meta.php" hash="dcf83fc72a7c3ea6349f32dbfdf469d8"/>
-            <file name="Order.php" hash="2bd05136ccce9f53c8657f0c1bb8da8c"/>
-            <file name="Product.php" hash="d928da8c2196537b2d7b370fd60c84f6"/>
-            <file name="Searchterm.php" hash="884cbca118486d922e73821242d8fc83"/>
+            <file name="Cart.php" hash="c964dcfc2be12646b8f81b4c3d1c0ca6"/>
+            <file name="Category.php" hash="c581a779c9bce1d149af21556eee9836"/>
+            <file name="Customer.php" hash="d6eaf09edbc14b537c5cfabb48afb7a2"/>
+            <file name="Element.php" hash="686d217784356fb2d784081a4a0cd40a"/>
+            <file name="Embed.php" hash="adf20605d8583c41d001288c3cb769bb"/>
+            <file name="Meta.php" hash="4d0e7b19695614fcde6e497979cdac99"/>
+            <file name="Order.php" hash="2826b0c2fad017466693514c30e5d547"/>
+            <file name="Pagetype.php" hash="54021165b35f12d8d45d6af771e50367"/>
+            <file name="Product.php" hash="389f2219a6c37b3a1358b3ce9838b079"/>
+            <file name="Searchterm.php" hash="aeb8c43940a21e084cd6890bcfc3e477"/>
+            <file name="Variation.php" hash="ca164dfd2b4b8cdb67b9ce09e55a0578"/>
           </dir>
           <dir name="Helper">
-            <file name="Account.php" hash="082a822d3ece87c935669d8a2c5f3dbd"/>
+            <file name="Account.php" hash="5e96d093c7946edcc17f942f984b3508"/>
             <file name="Cache.php" hash="87750033d028279c8c902eeeafc80de9"/>
-            <file name="Customer.php" hash="f87def2d435ff46ae9708d62892424f5"/>
-            <file name="Data.php" hash="b7867955c7b789fc290acaaef2a58499"/>
+            <file name="Currency.php" hash="810867804e5595c7a2759d0ddcbb18f7"/>
+            <file name="Customer.php" hash="71b7028f93de312e19e9ab18f14d0074"/>
+            <file name="Data.php" hash="94433e64ad6ee7433f756f83a3f05e3b"/>
             <file name="Date.php" hash="7d1b55282770627291f781dc9dd55eff"/>
             <file name="Oauth.php" hash="a9ddbf62971f77b3e86c05bb4a23ee66"/>
-            <file name="Price.php" hash="79218677cb2d9082b02227e7f433e26c"/>
-            <file name="Url.php" hash="23b8bf21bd05ee83af0f8e4335414a03"/>
+            <file name="Price.php" hash="18e911306dd3eeb3b6d48ad84fa6f768"/>
+            <file name="Setup.php" hash="b129c5dad0c285615414d9a9345dea96"/>
+            <file name="Url.php" hash="46303a9ea11c3d9c1ab3d27415381dd3"/>
           </dir>
           <dir name="Model">
             <file name="Base.php" hash="512d57dbb91fec6b61d331ffacc93f20"/>
+            <dir name="Collection">
+              <file name="Rates.php" hash="baddf50f68deae5bc976e6578d152f77"/>
+            </dir>
             <dir name="Container">
-              <file name="Cart.php" hash="48983d6bf94b57ef6583969dcaec9982"/>
-              <file name="Customer.php" hash="08ed2d6a1661a2499f1fd9963dbbef0d"/>
+              <file name="Cart.php" hash="9513669040ef6fc0d028b57c1a33ffa3"/>
+              <file name="Customer.php" hash="b482fd6b704728c5e8dfcea973f7a53d"/>
             </dir>
             <file name="Customer.php" hash="72c0d0d5f2f22881f75e82aa2488ea59"/>
             <dir name="Export">
               <dir name="Collection">
-                <file name="Order.php" hash="9255336f9ae7c7cf4b34b7ebba3e2e83"/>
+                <file name="Order.php" hash="77479fb26b90f1b6fd63538aaadf05e8"/>
               </dir>
             </dir>
             <dir name="Meta">
               <dir name="Account">
                 <file name="Billing.php" hash="d26a6d06313a546cc197832c8b6a72e6"/>
-                <file name="Iframe.php" hash="5c603cefadec90159b2e7ee1c36cb9a0"/>
-                <file name="Owner.php" hash="fa16c81fea090bcaa6176f27c339da2f"/>
+                <file name="Iframe.php" hash="ac0df1a92b5202fd5ad8b583073a18cc"/>
+                <file name="Owner.php" hash="076f8ae3c01994fde2fcf7c0dec714cc"/>
               </dir>
-              <file name="Account.php" hash="aee2a70131b26a530b33f8161a8987a4"/>
+              <file name="Account.php" hash="5c8c4d737dbd45f5d5aa32d357e954a0"/>
               <file name="Oauth.php" hash="25e361de164751c01872cda7e85cb60f"/>
               <dir name="Order">
-                <file name="Buyer.php" hash="e15f9c65f7323630982eb73131716cad"/>
-                <file name="Item.php" hash="615815cf039d733e3363bf2561cf90f2"/>
-                <file name="Status.php" hash="1277dabe24836edc27bba448a0c33afe"/>
+                <file name="Buyer.php" hash="29ef1477ab88c234271f9e075387af21"/>
+                <file name="Item.php" hash="5ee46c5b23204c0c8679620ef98e83b4"/>
+                <file name="Status.php" hash="2abe147745bd832cfacb7aeebfcda7e0"/>
               </dir>
-              <file name="Order.php" hash="c402e82e20a2282bfe545a9c4481c7b9"/>
-              <file name="Product.php" hash="ad61636e3843645b5385ff126fe5618a"/>
+              <file name="Order.php" hash="ed1e8b3bdf4cf4fe9a23de6e2cdf69d4"/>
+              <file name="Product.php" hash="e4d7ebab75f6b050fc0120947fd213e8"/>
             </dir>
-            <file name="Observer.php" hash="035c26e5ccc456c28966d489ee514087"/>
+            <file name="Observer.php" hash="f4a09b58fcd625a67d460a7797d2f334"/>
             <file name="Product.php" hash="df071b5a356793a1a2d3eae36a87d713"/>
             <dir name="Resource">
               <dir name="Customer">
@@ -89,34 +105,54 @@
               <file name="Setup.php" hash="688082f95af4cd0676f9dac374c48fc3"/>
             </dir>
             <dir name="Service">
-              <file name="Order.php" hash="35c43839685550db5afc5d184d881011"/>
+              <file name="Order.php" hash="95b087b90689a13e5a563ce7cdf596fa"/>
             </dir>
             <dir name="System">
               <dir name="Config">
+                <dir name="Backend">
+                  <dir name="Currency">
+                    <dir name="Exchange">
+                      <dir name="Rate">
+                        <file name="Cron.php" hash="b77cd590d717ce92aa4f38e20700d6b8"/>
+                      </dir>
+                    </dir>
+                  </dir>
+                </dir>
+                <dir name="Brand">
+                  <file name="Source.php" hash="ca6de651a9ea79a881abfbcf11da8f7d"/>
+                </dir>
                 <dir name="CustomTags">
                   <file name="Source.php" hash="556abacec5981385850f1e2c263eca9d"/>
                 </dir>
                 <dir name="Source">
-                  <file name="Image.php" hash="7ee779b7452d043402b7daf3a429081e"/>
+                  <file name="Image.php" hash="0377e330d49c691e87983b02e8a85423"/>
+                  <dir name="Multi">
+                    <dir name="Currency">
+                      <file name="Method.php" hash="8744977f5cb26630befcb6eb5d5c66d9"/>
+                    </dir>
+                  </dir>
                 </dir>
               </dir>
             </dir>
           </dir>
-          <file name="bootstrap.php" hash="2ee453bbe4ead0b3db6da08c30c6ddb5"/>
+          <file name="bootstrap.php" hash="3b334002827272f5e0dc682e1e0d5ef9"/>
           <dir name="controllers">
             <dir name="Adminhtml">
-              <file name="NostoController.php" hash="9318d399080eddf165c4d5869f8a306c"/>
+              <file name="NostoController.php" hash="eac8ecefd90166d4912b96a1cbf1e1db"/>
             </dir>
-            <file name="ExportController.php" hash="b3600647f08ba4b3e094ba960d756513"/>
-            <file name="OauthController.php" hash="2251bba8997207421594086ea444afe6"/>
+            <file name="ExportController.php" hash="79bebd19f52d85d3335abc4270fd8ff7"/>
+            <file name="OauthController.php" hash="16d7d1b58090a748f2c35cebd1b3b01a"/>
           </dir>
           <dir name="etc">
-            <file name="adminhtml.xml" hash="485ad85df190403f03391ffea0ecac2a"/>
-            <file name="cache.xml" hash="c63a5c181de4a93e7dccd5c485e167ff"/>
-            <file name="config.xml" hash="02e41bc18ddd7ab1cc6781a7b52ae357"/>
-            <file name="system.xml" hash="b9e1aa19b256ccfdc5e4869d652ca1b9"/>
+            <file name="adminhtml.xml" hash="94c1710b2a8f0b7b0a15918f7c88d975"/>
+            <file name="cache.xml" hash="b034f279196c596f2602102bd5e44c2c"/>
+            <file name="config.xml" hash="5743108251006b6676d5b9627dddb99d"/>
+            <file name="system.xml" hash="376a97fabcaab7ec6b433e3a3fcde835"/>
           </dir>
           <dir name="sql">
+            <dir name="nosto_customer_reference_setup">
+              <file name="mysql4-install-2.8.0.php" hash="a50fd9bb9d3276e305a84dc9057332c8"/>
+            </dir>
             <dir name="tagging_setup">
               <file name="mysql4-install-1.2.0.php" hash="be30ee06f46c101c5f078f9d55bb139d"/>
               <file name="mysql4-upgrade-1.1.7-1.2.0.php" hash="ff774ae3c70648b33eb5eae68debd555"/>
@@ -130,11 +166,19 @@
         <dir name="default">
           <dir name="default">
             <dir name="layout">
-              <file name="nostotagging.xml" hash="ba938d9b7c56b27124870641c30d57a1"/>
+              <file name="nostotagging.xml" hash="a367ca196e0c6f7202ff6f6f4f073f75"/>
             </dir>
             <dir name="template">
               <dir name="nostotagging">
-                <file name="iframe.phtml" hash="3d60a678dceaedc806c85741238a8346"/>
+                <file name="iframe.phtml" hash="3c156000e4522c237ff0600aa8eafa10"/>
+                <file name="notifications.phtml" hash="bbf3b98b2509019bd8e4abe7e669d90b"/>
+                <dir name="system">
+                  <dir name="config">
+                    <dir name="currency">
+                      <file name="formats.phtml" hash="2587f642e4d46340f7057c6c40fa20dd"/>
+                    </dir>
+                  </dir>
+                </dir>
                 <file name="wizard.phtml" hash="02b937a25e316e9dfe957104e44be0be"/>
               </dir>
             </dir>
@@ -145,23 +189,22 @@
         <dir name="base">
           <dir name="default">
             <dir name="layout">
-              <file name="nostotagging.xml" hash="5086a82ef8d91aea96d19301ead29b35"/>
+              <file name="nostotagging.xml" hash="2cc1f8fd94ea409cb200e8e53d15c1fc"/>
             </dir>
             <dir name="template">
               <dir name="nostotagging">
-                <file name="addtocart.phtml" hash="a1256ca97b1af6938d7d6b77aba65824"/>
-                <file name="cart.phtml" hash="7e61c0880447f7ea266c3691d8f8172c"/>
-                <dir name="category">
-                  <file name="view.phtml" hash="648ac0a4608a116e91d469147ada5c30"/>
-                </dir>
-                <file name="category.phtml" hash="61c53d7e8804cc58ecce26e66d2d0a6f"/>
-                <file name="customer.phtml" hash="a535eccc88ce34c56e19891bcc6aaaa9"/>
-                <file name="element.phtml" hash="21c05a2c0db519e876c058ea087d6383"/>
-                <file name="embed.phtml" hash="355769db8c273b7f8c92069b2262add0"/>
-                <file name="meta.phtml" hash="7aa206af71e02c9d24129662dd5b7aef"/>
-                <file name="order.phtml" hash="3d36a75c03d767d294d61015277ac57f"/>
-                <file name="product.phtml" hash="cf68284ba208f46184619f2a63b01b5a"/>
-                <file name="searchterm.phtml" hash="20ff1bbc903c8879e327376cfcdc5e74"/>
+                <file name="addtocart.phtml" hash="e495fdcaf779479c23f025885dfd5cee"/>
+                <file name="cart.phtml" hash="a5df7adacaf2dfaf77211aec705ba576"/>
+                <file name="category.phtml" hash="320ccee20c5efaac60de2fa88b4ed996"/>
+                <file name="customer.phtml" hash="f9ceeeac8c9909b2650f57743400592b"/>
+                <file name="element.phtml" hash="c982ed5ae7ac44267ef6b4e7405d0df6"/>
+                <file name="embed.phtml" hash="9980a5cd3fb315962e052497127b8332"/>
+                <file name="meta.phtml" hash="0f409190231247732707e17766364233"/>
+                <file name="order.phtml" hash="69ee18e576e0afa297ef5c96f1b4d812"/>
+                <file name="pagetype.phtml" hash="1640c6566981f767fb6536b293b7bd45"/>
+                <file name="product.phtml" hash="472c255b7d3ef59052d1563c4627009a"/>
+                <file name="searchterm.phtml" hash="f3f87d0f7757a96307aa87ce03e5f292"/>
+                <file name="variation.phtml" hash="80cf94a8a820ef595ee992df1e0eba7d"/>
               </dir>
             </dir>
           </dir>
@@ -170,7 +213,7 @@
     </target>
     <target name="mageetc">
       <dir name="modules">
-        <file name="Nosto_Tagging.xml" hash="c5a467ee1111bff376e98b71da113553"/>
+        <file name="Nosto_Tagging.xml" hash="2f413332dea61ddd8277998e0f059df5"/>
       </dir>
     </target>
     <target name="magelib">
@@ -179,7 +222,7 @@
           <dir name="src">
             <dir name="classes">
               <file name="Nosto.php" hash="2c7b6c163a017b509a85a5c2a6869e42"/>
-              <file name="NostoAccount.php" hash="6109b8ca5348c4bf71afd68f6b356c95"/>
+              <file name="NostoAccount.php" hash="d1ade30ca8630ac04149b7f0e12e113a"/>
               <file name="NostoAccountMeta.php" hash="f6e81dbead7b9425afed98f13faec9c9"/>
               <file name="NostoCipher.php" hash="f0af45e9fc48fe2734b6798ee5e3cdfc"/>
               <file name="NostoCurrency.php" hash="511399f42ff5793de445944b5456c28e"/>
@@ -196,7 +239,7 @@
               <file name="NostoValidator.php" hash="70523f08482bd8ef3a1a52a7fda2e237"/>
               <dir name="api">
                 <file name="NostoApiRequest.php" hash="e3f7acbded105c2c521233e25f4c740b"/>
-                <file name="NostoApiToken.php" hash="4db43866f41dfa8739942018e90bffa0"/>
+                <file name="NostoApiToken.php" hash="bf46e7be1d5bbb1c5e79cbb55b2e559e"/>
               </dir>
               <dir name="collection">
                 <file name="NostoCollection.php" hash="9e85a39ac3a860becd63d2d3cc64659f"/>
@@ -212,20 +255,20 @@
               </dir>
               <dir name="export">
                 <file name="NostoExportOrderCollection.php" hash="9e1c115ef84617f96e9896ffc67f3586"/>
-                <file name="NostoExportProductCollection.php" hash="47549ca2651eb2223602506e48f54a97"/>
+                <file name="NostoExportProductCollection.php" hash="a4a01403ec51898b390e0ac07e79bd13"/>
                 <file name="NostoExporter.php" hash="6c242c8b66a504483bff29ee83e795b8"/>
               </dir>
               <dir name="helper">
                 <file name="NostoHelper.php" hash="87ab4af83eb0f346238677e07acdd49e"/>
                 <file name="NostoHelperDate.php" hash="071e881ba63521bd3adfa50d14acfe43"/>
                 <file name="NostoHelperIframe.php" hash="a83dd911b45db7bd69bbfa38a6bb9d3b"/>
-                <file name="NostoHelperPrice.php" hash="15caf64dcf71a420a3e54612c181d470"/>
+                <file name="NostoHelperPrice.php" hash="49ea7add4987844de5566c16c6e54112"/>
               </dir>
               <dir name="http">
-                <file name="NostoHttpRequest.php" hash="d58478a568530607a2e8977993a0ebed"/>
+                <file name="NostoHttpRequest.php" hash="cc72e0324cb6d3244c4f40f2bd760689"/>
                 <file name="NostoHttpRequestAdapter.php" hash="e3ee66855cb2a81795172d85cafd75f0"/>
-                <file name="NostoHttpRequestAdapterCurl.php" hash="15fd9b4153d7433ac101b742aa8cd69d"/>
-                <file name="NostoHttpRequestAdapterSocket.php" hash="5656a7ffba3b3ea365969ca5cdafc8e3"/>
+                <file name="NostoHttpRequestAdapterCurl.php" hash="7ed6a572e36d5a2e3e6ff3ac7a1382c1"/>
+                <file name="NostoHttpRequestAdapterSocket.php" hash="703f6b9a7d54a920b2b442ab30c3d13a"/>
                 <file name="NostoHttpResponse.php" hash="6e6b6a155679604637e86b2a1faa29db"/>
               </dir>
               <dir name="oauth">
@@ -234,8 +277,8 @@
               </dir>
               <dir name="operation">
                 <file name="NostoOperationAccount.php" hash="dc7e52907b64b5e5149814bb048eb283"/>
-                <file name="NostoOperationExchangeRate.php" hash="523c253cdd85612333b3e614bcb4aa37"/>
-                <file name="NostoOperationProduct.php" hash="5788862288b3d39424a4d8f6a677b97d"/>
+                <file name="NostoOperationExchangeRate.php" hash="65b411b16d3ef340f156aaf7f9fd81d2"/>
+                <file name="NostoOperationProduct.php" hash="4efa9da47169eea8f23df78bdd9a23ef"/>
               </dir>
             </dir>
             <file name="config.inc.php" hash="2588b6b13b9877dd14a1d4d7d0747c2f"/>
@@ -243,10 +286,10 @@
               <file name="NostoExchangeRateInterface.php" hash="6c68bd4b564021cf0cb7e3f5b4b16ebe"/>
               <file name="NostoExportCollectionInterface.php" hash="5de9b4dbbbbc1d1b41a53990536a51b5"/>
               <file name="NostoOAuthClientMetaDataInterface.php" hash="98f06f774b4a9af07ef4024bb49ce447"/>
-              <file name="NostoProductInterface.php" hash="a6047977f419ab47564a69aede34526c"/>
+              <file name="NostoProductInterface.php" hash="81f39209104ef2b79e026c9bbd392957"/>
               <file name="NostoValidatableInterface.php" hash="9a14e13c2f20653ceb202b8f247e46ce"/>
               <dir name="account">
-                <file name="NostoAccountInterface.php" hash="c84dea82c07743a49049b2b9f526132d"/>
+                <file name="NostoAccountInterface.php" hash="7cceb9174b7a3960ef978be416448e6c"/>
                 <file name="NostoAccountMetaDataBillingDetailsInterface.php" hash="7e294f596d899af9aa5cf8dea94390e0"/>
                 <file name="NostoAccountMetaDataIframeInterface.php" hash="11ae6877125b32ca25a2545b41f91b9e"/>
                 <file name="NostoAccountMetaDataInterface.php" hash="c9d9a739d88db6cc4b3137f06ef930b7"/>
@@ -293,7 +336,7 @@
     <required>
       <php>
         <min>5.2.0</min>
-        <max>6.0.0</max>
+        <max>7.1.0</max>
       </php>
       <package>
         <name>Mage_Core_Modules</name>
