@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016, Nosto Solutions Ltd
+ * Copyright (c) 2015, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,9 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2016 Nosto Solutions Ltd
+ * @copyright 2015 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
- *
  */
 
 /**
@@ -70,8 +69,6 @@ class NostoOrderConfirmation
 
         $orderData = array(
             'order_number' => $order->getOrderNumber(),
-            'order_status_code' => $order->getOrderStatus()->getCode(),
-            'order_status_label' => $order->getOrderStatus()->getLabel(),
             'buyer' => array(
                 'first_name' => $order->getBuyerInfo()->getFirstName(),
                 'last_name' => $order->getBuyerInfo()->getLastName(),
@@ -79,10 +76,8 @@ class NostoOrderConfirmation
             ),
             'created_at' => Nosto::helper('date')->format($order->getCreatedDate()),
             'payment_provider' => $order->getPaymentProvider(),
-            'external_order_ref' => $order->getExternalOrderRef(),
             'purchased_items' => array(),
         );
-
         foreach ($order->getPurchasedItems() as $item) {
             $orderData['purchased_items'][] = array(
                 'product_id' => $item->getProductId(),
@@ -94,7 +89,7 @@ class NostoOrderConfirmation
         }
         $response = $request->post(json_encode($orderData));
         if ($response->getCode() !== 200) {
-            Nosto::throwHttpException('Failed to send order confirmation to Nosto.', $request, $response);
+            throw new NostoException('Failed to send order confirmation to Nosto');
         }
         return true;
     }

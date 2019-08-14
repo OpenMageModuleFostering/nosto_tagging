@@ -1,9 +1,9 @@
 <?php
 /**
  * Magento
- *  
+ *
  * NOTICE OF LICENSE
- *  
+ *
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is bundled with this package in the file LICENSE.txt.
  * It is also available through the world-wide-web at this URL:
@@ -11,17 +11,17 @@
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
  * to license@magentocommerce.com so we can send you a copy immediately.
- *  
+ *
  * DISCLAIMER
- *  
+ *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
- *  
+ *
  * @category  Nosto
  * @package   Nosto_Tagging
  * @author    Nosto Solutions Ltd <magento@nosto.com>
- * @copyright Copyright (c) 2013-2017 Nosto Solutions Ltd (http://www.nosto.com)
+ * @copyright Copyright (c) 2013-2015 Nosto Solutions Ltd (http://www.nosto.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -60,9 +60,13 @@ class Nosto_Tagging_Model_Meta_Oauth extends Mage_Core_Model_Abstract implements
      */
     public function loadData(Mage_Core_Model_Store $store)
     {
-        /* @var Nosto_Tagging_Helper_Url $urlHelper */
-        $urlHelper = Mage::helper('nosto_tagging/url');
-        $this->_redirectUrl = $urlHelper->getOauthRedirectUrl($store);
+        $this->_redirectUrl = Mage::getUrl(
+            'nosto/oauth',
+            array(
+                '_store' => $store->getId(),
+                '_store_to_url' => true
+            )
+        );
         $this->_languageIsoCode = substr(
             Mage::app()->getLocale()->getLocaleCode(), 0, 2
         );
@@ -117,6 +121,16 @@ class Nosto_Tagging_Model_Meta_Oauth extends Mage_Core_Model_Abstract implements
     }
 
     /**
+     * Sets the redirect url.
+     *
+     * @param string $url the url.
+     */
+    public function setRedirectUrl($url)
+    {
+        $this->_redirectUrl = $url;
+    }
+
+    /**
      * The 2-letter ISO code (ISO 639-1) for the language the OAuth2 server
      * uses for UI localization.
      *
@@ -125,5 +139,15 @@ class Nosto_Tagging_Model_Meta_Oauth extends Mage_Core_Model_Abstract implements
     public function getLanguageIsoCode()
     {
         return $this->_languageIsoCode;
+    }
+
+    /**
+     * Sets the language ISO code.
+     *
+     * @param string $code the ISO code.
+     */
+    public function setLanguageIsoCode($code)
+    {
+        $this->_languageIsoCode = $code;
     }
 }

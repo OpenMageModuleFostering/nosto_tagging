@@ -34,65 +34,62 @@
  */
 
 /**
- * Helper class that represents a oauth2 access token.
+ * Base class for all export collection classes used for exporting historical data from the shop.
+ * The base class provides the functionality to validate the items added to the collection.
+ * The collection behaves like an array. making it easy to add items to it and iterate over it.
  */
-class NostoOAuthToken
+abstract class NostoExportCollection extends ArrayObject
 {
     /**
-     * @var string the access token string.
+     * @var string the type of items this collection can contain.
      */
-    public $accessToken;
+    protected $validItemType = '';
 
     /**
-     * @var string the merchant name string.
-     */
-    public $merchantName;
-
-    /**
-     * @var string the type of token, e.g. "bearer".
-     */
-    public $tokenType;
-
-    /**
-     * @var int the amount of time this token is valid for.
-     */
-    public $expiresIn;
-
-    /**
-     * Creates a new token instance and populates it with the given data.
+     * Returns the collection as a JSON string.
+     * In the JSON camel case variables are converted into underscore format.
      *
-     * @param array $data the data to put in the token.
-     * @return NostoOAuthToken
+     * @return string the JSON.
      */
-    public static function create(array $data)
+    abstract public function getJson();
+
+    /**
+     * @inheritdoc
+     */
+    public function offsetSet($index, $newval)
     {
-        $token = new self();
-        foreach ($data as $key => $value) {
-            $key = self::underscore2CamelCase($key);
-            if (property_exists($token, $key)) {
-                $token->{$key} = $value;
-            }
-        }
-        return $token;
+        $this->validate($newval);
+        parent::offsetSet($index, $newval);
     }
 
     /**
-     * Converts string from underscore format to camel case format, e.g. variable_name => variableName.
-     *
-     * @param string $str the underscore formatted string to convert.
-     * @return string the converted string.
+     * @inheritdoc
      */
-    protected static function underscore2CamelCase($str)
+    public function append($value)
     {
-        // Non-alpha and non-numeric characters become spaces.
-        $str = preg_replace('/[^a-z0-9]+/i', ' ', $str);
-        // Uppercase the first character of each word.
-        $str = ucwords(trim($str));
-        // Remove all spaces.
-        $str = str_replace(" ", "", $str);
-        // Lowercase the first character of the result.
-        $str[0] = strtolower($str[0]);
+        $this->validate($value);
+        parent::append($value);
+    }
 
-        return $str;
+    /**
+     * Validates that the given value is of correct type.
+     *
+     * @see NostoExportCollection::$validItemType
+     * @param mixed $value the value.
+     * @throws NostoException if the value is of invalid type.
+     */
+    protected function validate($value)
+    {
+        if (!is_a($value, $this->validItemType)) {
+            $valueType = gettype($value);
+            if ($valueType === 'object') {
+                $valueType = get_class($value);
+            }
+            throw new NostoException(sprintf(
+                'Collection supports items of type "%s" (type "%s" given)',
+                $this->validItemType,
+                $valueType
+            ));
+        }
     }
 }

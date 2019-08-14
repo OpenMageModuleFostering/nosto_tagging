@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016, Nosto Solutions Ltd
+ * Copyright (c) 2015, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,9 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2016 Nosto Solutions Ltd
+ * @copyright 2015 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
- *
  */
 
 /**
@@ -55,29 +54,13 @@ class NostoHttpResponse
     protected $message;
 
     /**
-     * @var int runtime cache for the http response code.
-     */
-    private $code;
-
-    /**
-     * Constructor.
-     * Creates and populates the response object.
+     * Setter for the request response data.
      *
-     * @param array $headers the response headers.
-     * @param string $body the response body.
-     * @param string $error optional error message.
+     * @param mixed $result the response data of the request.
      */
-    public function __construct($headers, $body, $error = null)
+    public function setResult($result)
     {
-        if (!empty($headers) && is_array($headers)) {
-            $this->headers = $headers;
-        }
-        if (!empty($body) && is_string($body)) {
-            $this->result = $body;
-        }
-        if (!empty($error) && is_string($error)) {
-            $this->message = $error;
-        }
+        $this->result = $result;
     }
 
     /**
@@ -88,6 +71,26 @@ class NostoHttpResponse
     public function getResult()
     {
         return $this->result;
+    }
+
+    /**
+     * Setter for the error message of the request.
+     *
+     * @param string $message the message.
+     */
+    public function setMessage($message)
+    {
+        $this->message = $message;
+    }
+
+    /**
+     * Getter for the error message of the request.
+     *
+     * @return string the message.
+     */
+    public function getMessage()
+    {
+        return $this->message;
     }
 
     /**
@@ -102,50 +105,36 @@ class NostoHttpResponse
     }
 
     /**
-     * Getter for the error message of the request.
+     * Setter for the request response headers.
      *
-     * @return string the message.
+     * @param array $headers the headers,
      */
-    public function getMessage()
+    public function setHeaders($headers)
     {
-        return $this->message;
+        $this->headers = $headers;
     }
 
     /**
-     * Returns the `last` http response code.
+     * Returns the http request response code.
      *
      * @return int the http code or 0 if not set.
      */
     public function getCode()
     {
-        if (is_null($this->code)) {
-            $code = 0;
-            if (!empty($this->headers)) {
-                foreach ($this->headers as $header) {
-                    $matches = array();
-                    preg_match('|HTTP/\d\.\d\s+(\d+)\s+.*|', $header, $matches);
-                    if (isset($matches[1])) {
-                        $code = (int)$matches[1];
-                    }
-                }
-            }
-            $this->code = $code;
+        $matches = array();
+        if (isset($this->headers) && isset($this->headers[0])) {
+            preg_match('|HTTP/\d\.\d\s+(\d+)\s+.*|', $this->headers[0], $matches);
         }
-        return $this->code;
+        return isset($matches[1]) ? (int)$matches[1] : 0;
     }
 
     /**
-     * Converts the response to a string and returns it.
-     * Used when logging http request errors.
+     * Returns the raw http request response status string.
+     *
+     * @return string the status string or empty if not set.
      */
-    public function __toString()
+    public function getRawStatus()
     {
-        return serialize(
-            array(
-                'headers' => $this->headers,
-                'body' => $this->result,
-                'error' => $this->message,
-            )
-        );
+        return (isset($this->headers) && isset($this->headers[0])) ? $this->headers[0] : '';
     }
 }

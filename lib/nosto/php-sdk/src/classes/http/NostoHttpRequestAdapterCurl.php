@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016, Nosto Solutions Ltd
+ * Copyright (c) 2015, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,9 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2016 Nosto Solutions Ltd
+ * @copyright 2015 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
- *
  */
 
 /**
@@ -40,23 +39,6 @@
  */
 class NostoHttpRequestAdapterCurl extends NostoHttpRequestAdapter
 {
-
-    /**
-     * @var string the user-agent to use if specified
-     */
-    private $userAgent = false;
-
-    /**
-     * Constructor.
-     * Creates the http request adapter with the specified user-agent
-     *
-     * @param $userAgent string the user-agent header for all requests
-     */
-    public function __construct($userAgent)
-    {
-        $this->userAgent = $userAgent;
-    }
-
     /**
      * @inheritdoc
      */
@@ -70,7 +52,8 @@ class NostoHttpRequestAdapterCurl extends NostoHttpRequestAdapter
                 CURLOPT_FRESH_CONNECT => 1,
                 CURLOPT_RETURNTRANSFER => 1,
                 CURLOPT_FORBID_REUSE => 1,
-           )
+                CURLOPT_TIMEOUT => 60,
+            )
         );
     }
 
@@ -89,43 +72,7 @@ class NostoHttpRequestAdapterCurl extends NostoHttpRequestAdapter
                 CURLOPT_FRESH_CONNECT => 1,
                 CURLOPT_RETURNTRANSFER => 1,
                 CURLOPT_FORBID_REUSE => 1,
-            )
-        );
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function put($url, array $options = array())
-    {
-        $this->init($options);
-        return $this->send(
-            array(
-                CURLOPT_URL => $url,
-                CURLOPT_POSTFIELDS => $this->content,
-                CURLOPT_CUSTOMREQUEST => 'PUT',
-                CURLOPT_HEADER => 1,
-                CURLOPT_FRESH_CONNECT => 1,
-                CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_FORBID_REUSE => 1,
-            )
-        );
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function delete($url, array $options = array())
-    {
-        $this->init($options);
-        return $this->send(
-            array(
-                CURLOPT_URL => $url,
-                CURLOPT_CUSTOMREQUEST => 'DELETE',
-                CURLOPT_HEADER => 1,
-                CURLOPT_FRESH_CONNECT => 1,
-                CURLOPT_RETURNTRANSFER => 1,
-                CURLOPT_FORBID_REUSE => 1,
+                CURLOPT_TIMEOUT => 60,
             )
         );
     }
@@ -141,23 +88,23 @@ class NostoHttpRequestAdapterCurl extends NostoHttpRequestAdapter
         if (!empty($this->headers)) {
             $curlOptions[CURLOPT_HTTPHEADER] = $this->headers;
         }
-        if (!in_array(CURLOPT_USERAGENT, $curlOptions) && $this->userAgent) {
-            $curlOptions[CURLOPT_USERAGENT] = $this->userAgent;
-        }
-        if (!in_array(CURLOPT_TIMEOUT, $curlOptions)) {
-            $curlOptions[CURLOPT_TIMEOUT] = NostoHttpRequest::$responseTimeout;
-        }
-        if (!in_array(CURLOPT_CONNECTTIMEOUT, $curlOptions)) {
-            $curlOptions[CURLOPT_CONNECTTIMEOUT] = NostoHttpRequest::$connectTimeout;
-        }
         $ch = curl_init();
         curl_setopt_array($ch, $curlOptions);
         $result = curl_exec($ch);
-        $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-        $headers = explode("\r\n", substr($result, 0, $headerSize));
-        $body = substr($result, $headerSize);
-        $message = curl_error($ch);
+        $response = new NostoHttpResponse();
+        if ($result !== false) {
+            $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+            $header = substr($result, 0, $headerSize);
+            $header = explode("\r\n", $header);
+            $body = substr($result, $headerSize);
+            if (!empty($header)) {
+                $response->setHeaders($header);
+            }
+            $response->setResult($body);
+        } else {
+            $response->setMessage(curl_error($ch));
+        }
         curl_close($ch);
-        return new NostoHttpResponse($headers, $body, $message);
+        return $response;
     }
 }

@@ -1,9 +1,9 @@
 <?php
 /**
  * Magento
- *  
+ *
  * NOTICE OF LICENSE
- *  
+ *
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is bundled with this package in the file LICENSE.txt.
  * It is also available through the world-wide-web at this URL:
@@ -11,21 +11,21 @@
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
  * to license@magentocommerce.com so we can send you a copy immediately.
- *  
+ *
  * DISCLAIMER
- *  
+ *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
- *  
+ *
  * @category  Nosto
  * @package   Nosto_Tagging
  * @author    Nosto Solutions Ltd <magento@nosto.com>
- * @copyright Copyright (c) 2013-2017 Nosto Solutions Ltd (http://www.nosto.com)
+ * @copyright Copyright (c) 2013-2015 Nosto Solutions Ltd (http://www.nosto.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-require_once __DIR__ . '/../bootstrap.php';
+require_once Mage::getBaseDir('lib') . '/nosto/php-sdk/src/config.inc.php';
 
 /**
  * OAuth2 controller.
@@ -64,38 +64,30 @@ class Nosto_tagging_OauthController extends Mage_Core_Controller_Front_Action
         }
 
         $request = $this->getRequest();
-        $store = Mage::app()->getStore();
         if (($code = $request->getParam('code')) !== null) {
+            $store = Mage::app()->getStore();
             try {
-                /** @var Nosto_Tagging_Helper_Oauth $oauthHelper */
-                $oauthHelper = Mage::helper('nosto_tagging/oauth');
                 $account = NostoAccount::syncFromNosto(
-                    $oauthHelper->getMetaData($store),
+                    Mage::helper('nosto_tagging/oauth')->getMetaData($store),
                     $code
                 );
-
-                /** @var Nosto_Tagging_Helper_Account $accountHelper */
-                $accountHelper = Mage::helper('nosto_tagging/account');
-                if ($accountHelper->save($account, $store)) {
+                if (Mage::helper('nosto_tagging/account')->save($account, $store)) {
                     $params = array(
                         'message_type' => NostoMessage::TYPE_SUCCESS,
                         'message_code' => NostoMessage::CODE_ACCOUNT_CONNECT,
                         'store' => (int)$store->getId(),
-                        '_store' => Mage_Core_Model_App::ADMIN_STORE_ID,
                     );
                 } else {
                     throw new NostoException('Failed to connect account');
                 }
             } catch (NostoException $e) {
                 Mage::log(
-                    "\n" . $e->__toString(), Zend_Log::ERR, Nosto_Tagging_Model_Base::LOG_FILE_NAME
+                    "\n" . $e->__toString(), Zend_Log::ERR, 'nostotagging.log'
                 );
                 $params = array(
                     'message_type' => NostoMessage::TYPE_ERROR,
                     'message_code' => NostoMessage::CODE_ACCOUNT_CONNECT,
-                    'message_text' => $e->getMessage(),
                     'store' => (int)$store->getId(),
-                    '_store' => Mage_Core_Model_App::ADMIN_STORE_ID,
                 );
             }
             $this->_redirect('adminhtml/nosto/redirectProxy', $params);
@@ -107,14 +99,12 @@ class Nosto_tagging_OauthController extends Mage_Core_Controller_Front_Action
             if (($desc = $request->getParam('error_description')) !== null) {
                 $logMsg .= ' - ' . $desc;
             }
-            Mage::log("\n" . $logMsg, Zend_Log::ERR, Nosto_Tagging_Model_Base::LOG_FILE_NAME);
+            Mage::log("\n" . $logMsg, Zend_Log::ERR, 'nostotagging.log');
             $this->_redirect(
                 'adminhtml/nosto/redirectProxy', array(
                     'message_type' => NostoMessage::TYPE_ERROR,
-                    'message_code' => NostoMessage::CODE_ACCOUNT_CONNECT,
-                    'message_text' => $desc,
-                    'store' => (int)$store->getId(),
-                    '_store' => Mage_Core_Model_App::ADMIN_STORE_ID,
+                    'message_code' => !empty($reason) ? $reason : NostoMessage::CODE_ACCOUNT_CONNECT,
+                    'store' => (int)Mage::app()->getStore()->getId(),
                 )
             );
         } else {

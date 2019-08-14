@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016, Nosto Solutions Ltd
+ * Copyright (c) 2015, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,9 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2016 Nosto Solutions Ltd
+ * @copyright 2015 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
- *
  */
 
 /**
@@ -49,17 +48,14 @@ class NostoProductReCrawl
      */
     public static function send(NostoProductInterface $product, NostoAccountInterface $account)
     {
-        return self::sendRequest(
-            $account,
-            array(
-                'products' => array(
-                    array(
-                        'product_id' => $product->getProductId(),
-                        'url' => $product->getUrl(),
-                    )
-                ),
-            )
-        );
+        return self::sendRequest($account, array(
+            'products' => array(
+                array(
+                    'product_id' => $product->getProductId(),
+                    'url' => $product->getUrl(),
+                )
+            ),
+        ));
     }
 
     /**
@@ -73,7 +69,7 @@ class NostoProductReCrawl
     public static function sendBatch(NostoExportProductCollection $collection, NostoAccountInterface $account)
     {
         if ($collection->count() === 0) {
-            throw new NostoException('Failed to send product re-crawl to Nosto. No products in collection.');
+            throw new NostoException('Failed to send product re-crawl to Nosto. No products in collection (Error 400).', 400);
         }
         $payload = array(
             'products' => array()
@@ -100,17 +96,15 @@ class NostoProductReCrawl
     {
         $token = $account->getApiToken('products');
         if ($token === null) {
-            throw new NostoException(
-                'Failed to send product re-crawl to Nosto. No `products` API token found for account.'
-            );
+            throw new NostoException('Failed to send product re-crawl to Nosto. No `products` API token found for account (Error 400).', 400);
         }
         $request = new NostoApiRequest();
         $request->setPath(NostoApiRequest::PATH_PRODUCT_RE_CRAWL);
         $request->setContentType('application/json');
-        $request->setAuthBasic('', $token->getValue());
+        $request->setAuthBasic('', $token->value);
         $response = $request->post(json_encode($payload));
         if ($response->getCode() !== 200) {
-            Nosto::throwHttpException('Failed to send product re-crawl to Nosto.', $request, $response);
+            throw new NostoException('Failed to send product re-crawl to Nosto (Error '.$response->getCode().').', $response->getCode());
         }
         return true;
     }

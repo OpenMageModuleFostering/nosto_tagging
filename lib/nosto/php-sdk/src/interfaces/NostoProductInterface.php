@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016, Nosto Solutions Ltd
+ * Copyright (c) 2015, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,9 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2016 Nosto Solutions Ltd
+ * @copyright 2015 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
- *
  */
 
 /**
@@ -40,12 +39,6 @@
  */
 interface NostoProductInterface
 {
-    const IN_STOCK = 'InStock';
-    const OUT_OF_STOCK = 'OutOfStock';
-    const INVISIBLE = 'Invisible';
-    const DISCONTINUED = 'Discontinued';
-    const ADD_TO_CART = 'add-to-cart';
-
     /**
      * Returns the absolute url to the product page in the shop frontend.
      *
@@ -105,7 +98,7 @@ interface NostoProductInterface
     /**
      * Returns the tags for the product.
      *
-     * @return array the tags array, e.g. array('tag1' => array("winter", "shoe")).
+     * @return array the tags array, e.g. array("winter", "shoe").
      */
     public function getTags();
 
@@ -131,14 +124,6 @@ interface NostoProductInterface
     public function getDescription();
 
     /**
-     * Returns the full product description,
-     * i.e. both the "short" and "normal" descriptions concatenated.
-     *
-     * @return string the full descriptions.
-     */
-    public function getFullDescription();
-
-    /**
      * Returns the product brand name.
      *
      * @return string the brand name.
@@ -146,103 +131,9 @@ interface NostoProductInterface
     public function getBrand();
 
     /**
-     * Returns the product variation id.
+     * Returns the product publication date in the shop.
      *
-     * @return mixed|null
+     * @return string the date in format "Y-m-d".
      */
-    public function getVariationId();
-
-    /**
-     * Returns the supplier cost
-     *
-     * @return float|null
-     */
-    public function getSupplierCost();
-
-    /**
-     * Returns the inventory level
-     *
-     * @return int|null
-     */
-    public function getInventoryLevel();
-
-    /**
-     * Returns the count of reviews
-     *
-     * @return int|null
-     */
-    public function getReviewCount();
-
-    /**
-     * Returns the value of the rating(s)
-     *
-     * @return float|null
-     */
-    public function getRatingValue();
-
-    /**
-     * Returns the alternative images
-     *
-     * @return array|null
-     */
-    public function getAlternateImageUrls();
-
-    /**
-     * Returns the condition
-     *
-     * @return string|null
-     */
-    public function getCondition();
-
-    /**
-     * Returns the gender
-     *
-     * @return string|null
-     */
-    public function getGender();
-
-    /**
-     * Returns the age group
-     *
-     * @return string|null
-     */
-    public function getAgeGroup();
-
-    /**
-     * Returns the gtin / barcode
-     *
-     * @return string|null
-     */
-    public function getGtin();
-
-    /**
-     * Returns the category used for Google's services
-     *
-     * @return string|null
-     */
-    public function getGoogleCategory();
-
-    /**
-     * Returns the pricing measure of the product. Pricing measure for a 0.33
-     * liter bottle for example is "0.33".
-     *
-     * @return float|null
-     */
-    public function getUnitPricingMeasure();
-
-    /**
-     * Returns the pricing base measure of the product. Pricing base measure
-     * for a 0.33l bottle is "1".
-     *
-     * @return float|null
-     */
-    public function getUnitPricingBaseMeasure();
-
-    /**
-     * Returns the pricing unit of the product. Pricing unit for a 0.33l
-     * bottle is "l" (litre).
-     *
-     * @return string|null
-     */
-    public function getUnitPricingUnit();
+    public function getDatePublished();
 }

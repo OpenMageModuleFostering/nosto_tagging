@@ -1,9 +1,9 @@
 <?php
 /**
  * Magento
- *  
+ *
  * NOTICE OF LICENSE
- *  
+ *
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is bundled with this package in the file LICENSE.txt.
  * It is also available through the world-wide-web at this URL:
@@ -11,17 +11,17 @@
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
  * to license@magentocommerce.com so we can send you a copy immediately.
- *  
+ *
  * DISCLAIMER
- *  
+ *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
- *  
+ *
  * @category  Nosto
  * @package   Nosto_Tagging
  * @author    Nosto Solutions Ltd <magento@nosto.com>
- * @copyright Copyright (c) 2013-2017 Nosto Solutions Ltd (http://www.nosto.com)
+ * @copyright Copyright (c) 2013-2015 Nosto Solutions Ltd (http://www.nosto.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -36,6 +36,11 @@
 class Nosto_Tagging_Block_Cart extends Mage_Checkout_Block_Cart_Abstract
 {
     /**
+     * @var Mage_Sales_Model_Quote_Item[] Cached items in cart.
+     */
+    protected $_items;
+
+    /**
      * Render shopping cart content as hidden meta data if the module is
      * enabled for the current store.
      *
@@ -43,10 +48,8 @@ class Nosto_Tagging_Block_Cart extends Mage_Checkout_Block_Cart_Abstract
      */
     protected function _toHtml()
     {
-        /** @var Nosto_Tagging_Helper_Account $helper */
-        $helper = Mage::helper('nosto_tagging/account');
         if (!Mage::helper('nosto_tagging')->isModuleEnabled()
-            || !$helper->existsAndIsConnected()
+            || !Mage::helper('nosto_tagging/account')->existsAndIsConnected()
         ) {
             return '';
         }
@@ -63,137 +66,69 @@ class Nosto_Tagging_Block_Cart extends Mage_Checkout_Block_Cart_Abstract
         // come through a generic block that cannot be used for this specific
         // action.
         if (count($this->getItems()) > 0) {
-            /** @var Nosto_Tagging_Helper_Customer $customerHelper */
-            $customerHelper = Mage::helper('nosto_tagging/customer');
-            $customerHelper->updateNostoId();
+            Mage::helper('nosto_tagging/customer')->updateNostoId();
         }
 
         return parent::_toHtml();
     }
 
     /**
-     * Returns the product id for a quote item.
-     * Always try to find the "parent" product ID if the product is a child of
-     * another product type. We do this because it is the parent product that
-     * we tag on the product page, and the child does not always have it's own
-     * product page. This is important because it is the tagged info on the
-     * product page that is used to generate recommendations and email content.
+     * Returns all visible cart items. If it is a bundle product with dynamic
+     * price settings, we get it's products and return them. Fixed price bundle
+     * is not supported.
      *
-     * @param Mage_Sales_Model_Quote_Item $item the quote item model.
-     *
-     * @return int|string
+     * @return Mage_Sales_Model_Quote_Item[]
      */
-    public function getProductId($item)
+    public function getItems()
     {
-        $parentItem = $item->getOptionByCode('product_type');
-        if (!is_null($parentItem)) {
-            return $parentItem->getProductId();
-        } elseif ($item->getProductType() === Mage_Catalog_Model_Product_Type::TYPE_SIMPLE) {
-            /** @var Mage_Catalog_Model_Product_Type_Configurable $model */
-            $model = Mage::getModel('catalog/product_type_configurable');
-            $parentIds = $model->getParentIdsByChild($item->getProductId());
-            $attributes = $item->getBuyRequest()->getData('super_attribute');
-            // If the product has a configurable parent, we assume we should tag
-            // the parent. If there are many parent IDs, we are safer to tag the
-            // products own ID.
-            if (count($parentIds) === 1 && !empty($attributes)) {
-                return $parentIds[0];
+        if (!$this->_items) {
+            $items = array();
+            /** @var $visibleItems Mage_Sales_Model_Quote_Item[] */
+            $visibleItems = parent::getItems();
+            foreach ($visibleItems as $item) {
+                $product = $item->getProduct();
+                if ($product->getTypeId() === Mage_Catalog_Model_Product_Type::TYPE_BUNDLE) {
+                    if ((int)$product->getPriceType() === Mage_Bundle_Model_Product_Price::PRICE_TYPE_FIXED) {
+                        continue;
+                    }
+                    $items = array_merge($items, $item->getChildren());
+                } else {
+                    $items[] = $item;
+                }
             }
+
+            $this->_items = $items;
         }
-        return $item->getProductId();
+
+        return $this->_items;
     }
 
     /**
-     * Returns the name for a quote item.
-     * Configurable products will have their chosen options added to their name.
-     * Bundle products will have their chosen child product names added.
-     * Grouped products will have their parent product name prepended.
-     * All others will have their own name only.
+     * Returns the product id for a quote item.
+     * If the product type is "grouped", then return the grouped product's id
+     * and not the id of the actual product.
      *
      * @param Mage_Sales_Model_Quote_Item $item the quote item model.
      *
-     * @return string
+     * @return int
      */
-    public function getProductName($item)
+    public function getProductId($item)
     {
-        $name = $item->getName();
-        $optNames = array();
+        switch ($item->getProductType()) {
+            case Mage_Catalog_Model_Product_Type::TYPE_GROUPED:
+                $option = $item->getOptionByCode('product_type');
+                if ($option !== null) {
+                    $productId = $option->getProductId();
+                } else {
+                    $productId = $item->getProductId();
+                }
+                break;
 
-        if ($item->getProductType() === Mage_Catalog_Model_Product_Type::TYPE_SIMPLE) {
-            /** @var Mage_Catalog_Model_Product_Type_Configurable $model */
-            $model = Mage::getModel('catalog/product_type_configurable');
-            $parentIds = $model->getParentIdsByChild($item->getProductId());
-            // If the product has a configurable parent, we assume we should tag
-            // the parent. If there are many parent IDs, we are safer to tag the
-            // products own name alone.
-            if (count($parentIds) === 1) {
-                $attributes = $item->getBuyRequest()->getData('super_attribute');
-                if (is_array($attributes)) {
-                    foreach ($attributes as $id => $value) {
-                        /** @var Mage_Catalog_Model_Resource_Eav_Attribute $attribute */
-                        $attribute = Mage::getModel('catalog/resource_eav_attribute')
-                            ->load($id);
-                        $label = $attribute->getSource()->getOptionText($value);
-                        if (!empty($label)) {
-                            $optNames[] = $label;
-                        }
-                    }
-                }
-            }
-        } elseif ($item->getProductType() === Mage_Catalog_Model_Product_Type::TYPE_CONFIGURABLE) {
-            /* @var $helper Mage_Catalog_Helper_Product_Configuration */
-            $helper = Mage::helper('catalog/product_configuration');
-            foreach ($helper->getConfigurableOptions($item) as $opt) {
-                if (isset($opt['value']) && is_string($opt['value'])) {
-                    $optNames[] = $opt['value'];
-                }
-            }
-        } elseif ($item->getProductType() === Mage_Catalog_Model_Product_Type::TYPE_BUNDLE) {
-            $type = $item->getProduct()->getTypeInstance(true);
-            $opts = $type->getOrderOptions($item->getProduct());
-            if (isset($opts['bundle_options']) && is_array($opts['bundle_options'])) {
-                foreach ($opts['bundle_options'] as $opt) {
-                    if (isset($opt['value']) && is_array($opt['value'])) {
-                        foreach ($opt['value'] as $val) {
-                            $qty = '';
-                            if (isset($val['qty']) && is_int($val['qty'])) {
-                                $qty .= $val['qty'] . ' x ';
-                            }
-                            if (isset($val['title']) && is_string($val['title'])) {
-                                $optNames[] = $qty . $val['title'];
-                            }
-                        }
-                    }
-                }
-            }
-        } elseif ($item->getProductType() === Mage_Catalog_Model_Product_Type::TYPE_GROUPED) {
-            $config = $item->getBuyRequest()->getData('super_product_config');
-            if (isset($config['product_id'])) {
-                /** @var Mage_Catalog_Model_Product $parent */
-                $parent = Mage::getModel('catalog/product')
-                    ->load($config['product_id']);
-                $parentName = $parent->getName();
-                if (!empty($parentName)) {
-                    $name = $parentName.' - '.$name;
-                }
-            }
+            default:
+                $productId = $item->getProductId();
+                break;
         }
 
-        if (!empty($optNames)) {
-            $name .= ' (' . implode(', ', $optNames) . ')';
-        }
-
-        return $name;
-    }
-
-    /*
-     * Returns the visitor's Nosto Id
-     */
-    public function getVisitorChecksum()
-    {
-        /* @var $helper Nosto_Tagging_Helper_Data */
-        $helper = Mage::helper('nosto_tagging');
-
-        return $helper->getVisitorChecksum();
+        return (int)$productId;
     }
 }

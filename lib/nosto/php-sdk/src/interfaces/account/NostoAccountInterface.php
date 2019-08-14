@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016, Nosto Solutions Ltd
+ * Copyright (c) 2015, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,9 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2016 Nosto Solutions Ltd
+ * @copyright 2015 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
- *
  */
 
 /**
@@ -74,26 +73,11 @@ interface NostoAccountInterface
     public function getName();
 
     /**
-     * Checks if this account has been connected to Nosto,
-     * i.e. all mandatory API tokens exist.
+     * Checks if this account has been connected to Nosto, i.e. all API tokens exist.
      *
      * @return bool true if it is connected, false otherwise.
      */
     public function isConnectedToNosto();
-
-    /**
-     * Checks if this account has all API tokens
-     *
-     * @return bool true if some token(s) are missing, false otherwise.
-     */
-    public function hasMissingTokens();
-
-    /**
-     * Returns the missing API tokens
-     *
-     * @return array
-     */
-    public function getMissingTokens();
 
     /**
      * Gets an api token associated with this account by it's name , e.g. "sso".
@@ -107,7 +91,7 @@ interface NostoAccountInterface
      * Gets the secured iframe url for the account configuration page.
      *
      * @param NostoAccountMetaDataIframeInterface $meta the iframe meta data to use for fetching the secured url.
-     * @param array $params optional extra params to add to the iframe url.
+	 * @param array $params optional extra params to add to the iframe url.
      * @return bool|string the url or false if could not be fetched.
      */
     public function getIframeUrl(NostoAccountMetaDataIframeInterface $meta, array $params = array());

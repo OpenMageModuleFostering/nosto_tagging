@@ -1,9 +1,9 @@
 <?php
 /**
  * Magento
- *  
+ *
  * NOTICE OF LICENSE
- *  
+ *
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is bundled with this package in the file LICENSE.txt.
  * It is also available through the world-wide-web at this URL:
@@ -11,17 +11,17 @@
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
  * to license@magentocommerce.com so we can send you a copy immediately.
- *  
+ *
  * DISCLAIMER
- *  
+ *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
- *  
+ *
  * @category  Nosto
  * @package   Nosto_Tagging
  * @author    Nosto Solutions Ltd <magento@nosto.com>
- * @copyright Copyright (c) 2013-2017 Nosto Solutions Ltd (http://www.nosto.com)
+ * @copyright Copyright (c) 2013-2015 Nosto Solutions Ltd (http://www.nosto.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -101,11 +101,6 @@ class Nosto_Tagging_Model_Meta_Account_Iframe extends Mage_Core_Model_Abstract i
     protected $_shopName;
 
     /**
-     * @var array the name of modules / extensions
-     */
-    protected $_modules = array();
-
-    /**
      * @inheritdoc
      */
     protected function _construct()
@@ -121,14 +116,12 @@ class Nosto_Tagging_Model_Meta_Account_Iframe extends Mage_Core_Model_Abstract i
     public function loadData(Mage_Core_Model_Store $store)
     {
         /** @var Mage_Admin_Model_User $user */
-        /** @noinspection PhpUndefinedMethodInspection */
         $user = Mage::getSingleton('admin/session')->getUser();
         /** @var Nosto_Tagging_Helper_Url $urlHelper */
         $urlHelper = Mage::helper('nosto_tagging/url');
         /** @var Nosto_Tagging_Helper_Data $dataHelper */
         $dataHelper = Mage::helper('nosto_tagging/data');
-        /** @var Nosto_Tagging_Helper_Module $moduleHelper */
-        $moduleHelper = Mage::helper('nosto_tagging/module');
+
         $this->_firstName = $user->getFirstname();
         $this->_lastName = $user->getLastname();
         $this->_email = $user->getEmail();
@@ -145,7 +138,6 @@ class Nosto_Tagging_Model_Meta_Account_Iframe extends Mage_Core_Model_Abstract i
         $this->_previewUrlCart = $urlHelper->getPreviewUrlCart($store);
         $this->_previewUrlFront = $urlHelper->getPreviewUrlFront($store);
         $this->_shopName = $store->getName();
-        $this->_modules = $moduleHelper->getModulesForIntegration();
     }
 
     /**
@@ -160,6 +152,16 @@ class Nosto_Tagging_Model_Meta_Account_Iframe extends Mage_Core_Model_Abstract i
     }
 
     /**
+     * Sets the first name of the admin user.
+     *
+     * @param string $firstName the first name.
+     */
+    public function setFirstName($firstName)
+    {
+        $this->_firstName = $firstName;
+    }
+
+    /**
      * The first name of the user who is loading the config iframe.
      *
      * @return string the first name.
@@ -167,6 +169,16 @@ class Nosto_Tagging_Model_Meta_Account_Iframe extends Mage_Core_Model_Abstract i
     public function getFirstName()
     {
         return $this->_firstName;
+    }
+
+    /**
+     * Sets the last name of the admin user.
+     *
+     * @param string $lastName the last name.
+     */
+    public function setLastName($lastName)
+    {
+        $this->_lastName = $lastName;
     }
 
     /**
@@ -180,6 +192,16 @@ class Nosto_Tagging_Model_Meta_Account_Iframe extends Mage_Core_Model_Abstract i
     }
 
     /**
+     * Sets the email address of the admin user.
+     *
+     * @param string $email the email address.
+     */
+    public function setEmail($email)
+    {
+        $this->_email = $email;
+    }
+
+    /**
      * The email address of the user who is loading the config iframe.
      *
      * @return string the email address.
@@ -187,6 +209,16 @@ class Nosto_Tagging_Model_Meta_Account_Iframe extends Mage_Core_Model_Abstract i
     public function getEmail()
     {
         return $this->_email;
+    }
+
+    /**
+     * Sets the language ISO code.
+     *
+     * @param string $code the ISO code.
+     */
+    public function setLanguageIsoCode($code)
+    {
+        $this->_languageIsoCode = $code;
     }
 
     /**
@@ -325,13 +357,5 @@ class Nosto_Tagging_Model_Meta_Account_Iframe extends Mage_Core_Model_Abstract i
     public function getShopName()
     {
         return $this->_shopName;
-    }
-
-    /*
-     * @inheritdoc
-     */
-    public function getModules()
-    {
-        return $this->_modules;
     }
 }

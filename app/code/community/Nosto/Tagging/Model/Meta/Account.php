@@ -1,9 +1,9 @@
 <?php
 /**
  * Magento
- *  
+ *
  * NOTICE OF LICENSE
- *  
+ *
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is bundled with this package in the file LICENSE.txt.
  * It is also available through the world-wide-web at this URL:
@@ -11,17 +11,17 @@
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
  * to license@magentocommerce.com so we can send you a copy immediately.
- *  
+ *
  * DISCLAIMER
- *  
+ *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
- *  
+ *
  * @category  Nosto
  * @package   Nosto_Tagging
  * @author    Nosto Solutions Ltd <magento@nosto.com>
- * @copyright Copyright (c) 2013-2017 Nosto Solutions Ltd (http://www.nosto.com)
+ * @copyright Copyright (c) 2013-2015 Nosto Solutions Ltd (http://www.nosto.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -81,26 +81,6 @@ class Nosto_Tagging_Model_Meta_Account extends Mage_Core_Model_Abstract implemen
     protected $_signUpApiToken = 'YBDKYwSqTCzSsU8Bwbg4im2pkHMcgTy9cCX7vevjJwON1UISJIwXOLMM0a8nZY7h';
 
     /**
-     * @var array|stdClass account details
-     */
-    protected $_details;
-
-    /**
-     * @var bool the flag to use exchange rates or not
-     */
-    protected $_useCurrencyExchangeRates;
-
-    /**
-     * @var array The array of currencies
-     */
-    protected $_currencies = array();
-
-    /**
-     * @var string The base currency of the store
-     */
-    protected $_defaultPriceVariationId;
-
-    /**
      * @inheritdoc
      */
     protected function _construct()
@@ -115,19 +95,17 @@ class Nosto_Tagging_Model_Meta_Account extends Mage_Core_Model_Abstract implemen
      */
     public function loadData(Mage_Core_Model_Store $store)
     {
-        /* @var Nosto_Tagging_Helper_Data $helper */
-        $helper = Mage::helper('nosto_tagging');
-        /* @var Nosto_Tagging_Helper_Url $helperUrl */
-        $helperUrl = Mage::helper('nosto_tagging/url');
-        $this->_title = $helper->cleanUpAccountTitle(
-            $store->getWebsite()->getName()
+        $this->_title = $store->getWebsite()->getName()
             . ' - '
             . $store->getGroup()->getName()
             . ' - '
-            . $store->getName()
-        );
+            . $store->getName();
         $this->_name = substr(sha1(rand()), 0, 8);
-        $this->_frontPageUrl = $helperUrl->getFrontPageUrl($store);
+        $this->_frontPageUrl = NostoHttpRequest::replaceQueryParamInUrl(
+            '___store',
+            $store->getCode(),
+            $store->getBaseUrl(Mage_Core_Model_Store::URL_TYPE_WEB)
+        );
         $this->_currencyCode = $store->getBaseCurrencyCode();
         $this->_languageCode = substr(
             $store->getConfig('general/locale/code'), 0, 2
@@ -135,34 +113,20 @@ class Nosto_Tagging_Model_Meta_Account extends Mage_Core_Model_Abstract implemen
         $this->_ownerLanguageCode = substr(
             Mage::app()->getLocale()->getLocaleCode(), 0, 2
         );
+        $this->_owner = new Nosto_Tagging_Model_Meta_Account_Owner();
+        $this->_owner->loadData($store);
+        $this->_billing = new Nosto_Tagging_Model_Meta_Account_Billing();
+        $this->_billing->loadData($store);
+    }
 
-        /** @var Nosto_Tagging_Model_Meta_Account_Owner $owner */
-        $owner = Mage::getModel('nosto_tagging/meta_account_owner');
-        $owner->loadData();
-        $this->_owner = $owner;
-
-        /** @var Nosto_Tagging_Model_Meta_Account_Billing $billing */
-        $billing = Mage::getModel('nosto_tagging/meta_account_billing');
-        $billing->loadData($store);
-        $this->_billing = $billing;
-
-        $this->_useCurrencyExchangeRates = !$helper->multiCurrencyDisabled($store);
-        if (!$helper->multiCurrencyDisabled($store)) {
-            $this->_defaultPriceVariationId = $store->getBaseCurrencyCode();
-        } else {
-            $this->_defaultPriceVariationId = "";
-        }
-
-        $storeLocale = $store->getConfig('general/locale/code');
-        $currencyCodes = $store->getAvailableCurrencyCodes(true);
-        if (is_array($currencyCodes) && count($currencyCodes) > 0) {
-            /** @var Nosto_Tagging_Helper_Currency $currencyHelper */
-            $currencyHelper = Mage::helper('nosto_tagging/currency');
-            foreach ($currencyCodes as $currencyCode) {
-                $this->_currencies[$currencyCode] = $currencyHelper
-                    ->getCurrencyObject($storeLocale, $currencyCode);
-            }
-        }
+    /**
+     * Sets the store title.
+     *
+     * @param string $title the store title.
+     */
+    public function setTitle($title)
+    {
+        $this->_title = $title;
     }
 
     /**
@@ -173,6 +137,16 @@ class Nosto_Tagging_Model_Meta_Account extends Mage_Core_Model_Abstract implemen
     public function getTitle()
     {
         return $this->_title;
+    }
+
+    /**
+     * Sets the account name.
+     *
+     * @param string $name the account name.
+     */
+    public function setName($name)
+    {
+        $this->_name = $name;
     }
 
     /**
@@ -199,6 +173,16 @@ class Nosto_Tagging_Model_Meta_Account extends Mage_Core_Model_Abstract implemen
     }
 
     /**
+     * Sets the store front page url.
+     *
+     * @param string $url the front page url.
+     */
+    public function setFrontPageUrl($url)
+    {
+        $this->_frontPageUrl = $url;
+    }
+
+    /**
      * Absolute url to the front page of the shop for which the account is
      * created for.
      *
@@ -207,6 +191,16 @@ class Nosto_Tagging_Model_Meta_Account extends Mage_Core_Model_Abstract implemen
     public function getFrontPageUrl()
     {
         return $this->_frontPageUrl;
+    }
+
+    /**
+     * Sets the store currency ISO (ISO 4217) code.
+     *
+     * @param string $code the currency ISO code.
+     */
+    public function setCurrencyCode($code)
+    {
+        $this->_currencyCode = $code;
     }
 
     /**
@@ -221,6 +215,16 @@ class Nosto_Tagging_Model_Meta_Account extends Mage_Core_Model_Abstract implemen
     }
 
     /**
+     * Sets the store language ISO (ISO 639-1) code.
+     *
+     * @param string $languageCode the language ISO code.
+     */
+    public function setLanguageCode($languageCode)
+    {
+        $this->_languageCode = $languageCode;
+    }
+
+    /**
      * The 2-letter ISO code (ISO 639-1) for the language used by the shop for
      * which the account is created for.
      *
@@ -229,6 +233,16 @@ class Nosto_Tagging_Model_Meta_Account extends Mage_Core_Model_Abstract implemen
     public function getLanguageCode()
     {
         return $this->_languageCode;
+    }
+
+    /**
+     * Sets the owner language ISO (ISO 639-1) code.
+     *
+     * @param string $languageCode the language ISO code.
+     */
+    public function setOwnerLanguageCode($languageCode)
+    {
+        $this->_ownerLanguageCode = $languageCode;
     }
 
     /**
@@ -271,70 +285,5 @@ class Nosto_Tagging_Model_Meta_Account extends Mage_Core_Model_Abstract implemen
     public function getSignUpApiToken()
     {
         return $this->_signUpApiToken;
-    }
-
-    /**
-     * Optional partner code for Nosto partners.
-     * The code is issued by Nosto to partners only.
-     *
-     * @return string|null the partner code or null if none exist.
-     */
-    public function getPartnerCode()
-    {
-        // todo: implement partner code storage.
-        return null;
-    }
-
-    /**
-     * Returns a list of currency objects supported by the store the account is to be created for.
-     *
-     * @return NostoCurrency[] the currencies.
-     */
-    public function getCurrencies()
-    {
-        return $this->_currencies;
-    }
-
-    /**
-     * Returns if exchange rates should be used for handling
-     * multiple currencies. Please note that the method only tells if the
-     * setting is active. Method does not take account whether multiple
-     * currencies actually exist or are used.
-     *
-     * @return boolean if multi variants are used
-     */
-    public function getUseCurrencyExchangeRates()
-    {
-        return $this->_useCurrencyExchangeRates;
-    }
-
-    /**
-     * Returns the default variation id
-     *
-     * @return string
-     */
-    public function getDefaultVariationId()
-    {
-        return $this->_defaultPriceVariationId;
-    }
-
-    /**
-     * Set details
-     *
-     * @param array|stdClass $details
-     */
-    public function setDetails($details)
-    {
-        $this->_details = $details;
-    }
-
-    /**
-     * Get the details
-     *
-     * @return array|stdClass
-     */
-    public function getDetails()
-    {
-        return $this->_details;
     }
 }

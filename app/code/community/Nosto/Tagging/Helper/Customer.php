@@ -1,9 +1,9 @@
 <?php
 /**
  * Magento
- *  
+ *
  * NOTICE OF LICENSE
- *  
+ *
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is bundled with this package in the file LICENSE.txt.
  * It is also available through the world-wide-web at this URL:
@@ -11,17 +11,17 @@
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
  * to license@magentocommerce.com so we can send you a copy immediately.
- *  
+ *
  * DISCLAIMER
- *  
+ *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
- *  
+ *
  * @category  Nosto
  * @package   Nosto_Tagging
  * @author    Nosto Solutions Ltd <magento@nosto.com>
- * @copyright Copyright (c) 2013-2017 Nosto Solutions Ltd (http://www.nosto.com)
+ * @copyright Copyright (c) 2013-2015 Nosto Solutions Ltd (http://www.nosto.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -35,13 +35,18 @@
 class Nosto_Tagging_Helper_Customer extends Mage_Core_Helper_Abstract
 {
     /**
+     * @var string the name of the cookie where the Nosto ID can be found.
+     */
+    const COOKIE_NAME = '2c_cId';
+
+    /**
      * Gets the Nosto ID for an order model.
      * The Nosto ID represents the customer who placed to the order on Nosto's
      * side.
      *
      * @param Mage_Sales_Model_Order $order the order to get the Nosto ID for.
      *
-     * @return string|bool
+     * @return bool|string the Nosto ID or false if not found for order.
      */
     public function getNostoId(Mage_Sales_Model_Order $order)
     {
@@ -65,15 +70,13 @@ class Nosto_Tagging_Helper_Customer extends Mage_Core_Helper_Abstract
         $quoteId = ($cart->getQuote() !== null)
             ? $cart->getQuote()->getId()
             : false;
-        $nostoId = $cookie->get(Nosto_Tagging_Helper_Data::COOKIE_NAME);
+        $nostoId = $cookie->get(self::COOKIE_NAME);
         if (!empty($quoteId) && !empty($nostoId)) {
             /** @var Nosto_Tagging_Model_Customer $customer */
             $customer = Mage::getModel('nosto_tagging/customer')
                 ->getCollection()
                 ->addFieldToFilter('quote_id', $quoteId)
                 ->addFieldToFilter('nosto_id', $nostoId)
-                ->setPageSize(1)
-                ->setCurPage(1)
                 ->getFirstItem();
             if ($customer->hasData()) {
                 $customer->setUpdatedAt(date('Y-m-d H:i:s'));
@@ -85,24 +88,5 @@ class Nosto_Tagging_Helper_Customer extends Mage_Core_Helper_Abstract
                 $customer->save();
             }
         }
-    }
-
-    /**
-     * Return the checksum / customer reference for customer
-     *
-     * @param Mage_Customer_Model_Customer $customer
-     *
-     * @return string
-     */
-    public function generateCustomerReference(Mage_Customer_Model_Customer $customer)
-    {
-        /** @noinspection PhpUndefinedMethodInspection */
-        $hash = md5($customer->getId().$customer->getEmail());
-        $uuid = uniqid(
-            substr($hash, 0, 8),
-            true
-        );
-
-        return $uuid;
     }
 }

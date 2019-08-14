@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016, Nosto Solutions Ltd
+ * Copyright (c) 2015, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,9 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2016 Nosto Solutions Ltd
+ * @copyright 2015 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
- *
  */
 
 /**
@@ -42,16 +41,11 @@ class NostoHelperPrice extends NostoHelper
     /**
      * Formats price into Nosto format, e.g. 1000.99.
      *
-     * @param int|float $price the price string to format.
+     * @param string|int|float $price the price string to format.
      * @return string the formatted price.
      */
     public function format($price)
     {
-        $formatted = null;
-        if (is_numeric($price)) {
-            $formatted = number_format($price, 2, '.', '');
-        }
-
-        return $formatted;
+        return number_format($price, 2, '.', '');
     }
 }

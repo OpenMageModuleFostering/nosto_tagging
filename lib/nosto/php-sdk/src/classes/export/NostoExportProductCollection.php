@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016, Nosto Solutions Ltd
+ * Copyright (c) 2015, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,17 +29,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2016 Nosto Solutions Ltd
+ * @copyright 2015 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
- *
  */
 
 /**
  * Product collection for historical data exports.
  * Supports only items implementing "NostoProductInterface".
  */
-class NostoExportProductCollection extends NostoProductCollection implements NostoExportCollectionInterface
+class NostoExportProductCollection extends NostoExportCollection
 {
+    /**
+     * @inheritdoc
+     */
+    protected $validItemType = 'NostoProductInterface';
+
     /**
      * @inheritdoc
      */
@@ -48,7 +52,21 @@ class NostoExportProductCollection extends NostoProductCollection implements Nos
         $array = array();
         /** @var NostoProductInterface $item */
         foreach ($this->getArrayCopy() as $item) {
-            $array[] = NostoOperationProduct::getProductAsArray($item);
+            $array[] = array(
+                'url' => $item->getUrl(),
+                'product_id' => $item->getProductId(),
+                'name' => $item->getName(),
+                'image_url' => $item->getImageUrl(),
+                'price' => Nosto::helper('price')->format($item->getPrice()),
+                'list_price' => Nosto::helper('price')->format($item->getListPrice()),
+                'price_currency_code' => strtoupper($item->getCurrencyCode()),
+                'availability' => $item->getAvailability(),
+                'tags' => $item->getTags(),
+                'categories' => $item->getCategories(),
+                'description' => $item->getShortDescription().'<br/>'.$item->getDescription(),
+                'brand' => $item->getBrand(),
+                'date_published' => Nosto::helper('date')->format($item->getDatePublished()),
+            );
         }
         return json_encode($array);
     }

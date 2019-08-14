@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016, Nosto Solutions Ltd
+ * Copyright (c) 2015, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,17 +29,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2016 Nosto Solutions Ltd
+ * @copyright 2015 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
- *
  */
 
 /**
  * Order collection for historical data exports.
  * Supports only items implementing "NostoOrderInterface".
  */
-class NostoExportOrderCollection extends NostoOrderCollection implements NostoExportCollectionInterface
+class NostoExportOrderCollection extends NostoExportCollection
 {
+    /**
+     * @inheritdoc
+     */
+    protected $validItemType = 'NostoOrderInterface';
+
     /**
      * @inheritdoc
      */
@@ -50,16 +54,12 @@ class NostoExportOrderCollection extends NostoOrderCollection implements NostoEx
         foreach ($this->getArrayCopy() as $item) {
             $data = array(
                 'order_number' => $item->getOrderNumber(),
-                'order_status_code' => $item->getOrderStatus()->getCode(),
-                'order_status_label' => $item->getOrderStatus()->getLabel(),
                 'created_at' => Nosto::helper('date')->format($item->getCreatedDate()),
                 'buyer' => array(
                     'first_name' => $item->getBuyerInfo()->getFirstName(),
                     'last_name' => $item->getBuyerInfo()->getLastName(),
                     'email' => $item->getBuyerInfo()->getEmail(),
                 ),
-                'payment_provider' => $item->getPaymentProvider(),
-                'external_order_ref' => $item->getExternalOrderRef(),
                 'purchased_items' => array(),
             );
             foreach ($item->getPurchasedItems() as $orderItem) {
@@ -71,7 +71,6 @@ class NostoExportOrderCollection extends NostoOrderCollection implements NostoEx
                     'price_currency_code' => strtoupper($orderItem->getCurrencyCode()),
                 );
             }
-
             $array[] = $data;
         }
         return json_encode($array);

@@ -1,9 +1,9 @@
 <?php
 /**
  * Magento
- *  
+ *
  * NOTICE OF LICENSE
- *  
+ *
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is bundled with this package in the file LICENSE.txt.
  * It is also available through the world-wide-web at this URL:
@@ -11,21 +11,21 @@
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
  * to license@magentocommerce.com so we can send you a copy immediately.
- *  
+ *
  * DISCLAIMER
- *  
+ *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
- *  
+ *
  * @category  Nosto
  * @package   Nosto_Tagging
  * @author    Nosto Solutions Ltd <magento@nosto.com>
- * @copyright Copyright (c) 2013-2017 Nosto Solutions Ltd (http://www.nosto.com)
+ * @copyright Copyright (c) 2013-2015 Nosto Solutions Ltd (http://www.nosto.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
-require_once __DIR__ . '/../bootstrap.php';
+require_once Mage::getBaseDir('lib') . '/nosto/php-sdk/src/config.inc.php';
 
 /**
  * History data export controller.
@@ -37,47 +37,8 @@ require_once __DIR__ . '/../bootstrap.php';
  * @package  Nosto_Tagging
  * @author   Nosto Solutions Ltd <magento@nosto.com>
  */
-class Nosto_Tagging_ExportController extends Mage_Core_Controller_Front_Action
+class Nosto_tagging_ExportController extends Mage_Core_Controller_Front_Action
 {
-    const ID = 'id';
-    const LIMIT = 'limit';
-    const OFFSET = 'offset';
-    const CREATED_AT = 'created_at';
-
-    protected static $searchableFields = array(
-        'sales/order' => array(
-            self::ID => 'entity_id'
-        ),
-        'nosto_tagging/product' => array(
-            self::ID => 'entity_id'
-        )
-    );
-
-    protected function applyIdFilters(&$collection) {
-        /** @var Mage_Sales_Model_Resource_Collection_Abstract $collection */
-        if ($id = $this->getRequest()->getParam(self::ID)) {
-            /** @var string $collectionModel */
-            $collectionModel = $collection->getModelName();
-            if (
-                !empty(self::$searchableFields[$collectionModel])
-                && !empty(self::$searchableFields[$collectionModel][self::ID])
-            ) {
-                $filterByField = self::$searchableFields[$collectionModel][self::ID];
-                if (!is_array($id)) {
-                    $ids = explode(',', $id);
-                    if (count($ids) > 0) {
-                        $id = $ids;
-                    }
-                }
-                if (is_array($id) && count($id) > 0) {
-                    $collection->addFieldToFilter($filterByField, array('in' => $id));
-                } else {
-                    $collection->addFieldToFilter($filterByField, $id);
-                }
-            }
-        }
-    }
-
     /**
      * Exports completed orders from the current store.
      * Result can be limited by the `limit` and `offset` GET parameters.
@@ -85,28 +46,22 @@ class Nosto_Tagging_ExportController extends Mage_Core_Controller_Front_Action
     public function orderAction()
     {
         if (Mage::helper('nosto_tagging')->isModuleEnabled()) {
-            $pageSize = (int)$this->getRequest()->getParam(self::LIMIT, 100);
-            $currentOffset = (int)$this->getRequest()->getParam(self::OFFSET, 0);
+            $pageSize = (int)$this->getRequest()->getParam('limit', 100);
+            $currentOffset = (int)$this->getRequest()->getParam('offset', 0);
             $currentPage = ($currentOffset / $pageSize) + 1;
-            /** @var Mage_Sales_Model_Resource_Order_Collection $orders */
-            $orders = Mage::getModel('sales/order')->getCollection();
-            $this->applyIdFilters($orders);
-            $orders->addFieldToFilter('store_id', Mage::app()->getStore()->getId())
+            $orders = Mage::getModel('sales/order')
+                ->getCollection()
+                ->addFieldToFilter('store_id', Mage::app()->getStore()->getId())
                 ->setPageSize($pageSize)
-                ->setCurPage($currentPage)
-                ->setOrder(self::CREATED_AT, Varien_Data_Collection::SORT_ORDER_DESC);
+                ->setCurPage($currentPage);
             if ($currentPage > $orders->getLastPageNumber()) {
                 $orders = array();
             }
-            /** @var Nosto_Tagging_Model_Export_Collection_Order $collection */
-            $collection = Mage::getModel('nosto_tagging/export_collection_order');
-            /* @var Mage_Sales_Model_Order $order */
+            $collection = new NostoExportOrderCollection();
             foreach ($orders as $order) {
-                /** @var Nosto_Tagging_Helper_Class $helper */
-                $helper = Mage::helper('nosto_tagging/class');
-                /** @var Nosto_Tagging_Model_Meta_Order $meta */
-                $meta = $helper->getOrderClass($order);
-                $meta->includeSpecialItems = true;
+                $meta = new Nosto_Tagging_Model_Meta_Order();
+                // We don't need special items like shipping cost and discounts.
+                $meta->includeSpecialItems = false;
                 $meta->loadData($order);
                 $collection[] = $meta;
             }
@@ -121,15 +76,12 @@ class Nosto_Tagging_ExportController extends Mage_Core_Controller_Front_Action
     public function productAction()
     {
         if (Mage::helper('nosto_tagging')->isModuleEnabled()) {
-            $pageSize = (int)$this->getRequest()->getParam(self::LIMIT, 100);
-            $currentOffset = (int)$this->getRequest()->getParam(self::OFFSET, 0);
+            $pageSize = (int)$this->getRequest()->getParam('limit', 100);
+            $currentOffset = (int)$this->getRequest()->getParam('offset', 0);
             $currentPage = ($currentOffset / $pageSize) + 1;
-            // We use our own collection object to avoid issues with the product
-            // flat collection. It's missing required data by default.
-            /** @var Nosto_Tagging_Model_Resource_Product_Collection $products */
-            $products = Mage::getModel('nosto_tagging/product')->getCollection();
-            $this->applyIdFilters($products);
-            $products->addStoreFilter(Mage::app()->getStore()->getId())
+            $products = Mage::getModel('catalog/product')
+                ->getCollection()
+                ->addStoreFilter(Mage::app()->getStore()->getId())
                 ->addAttributeToSelect('*')
                 ->addAttributeToFilter(
                     'status', array(
@@ -141,21 +93,20 @@ class Nosto_Tagging_ExportController extends Mage_Core_Controller_Front_Action
                     Mage_Catalog_Model_Product_Visibility::VISIBILITY_BOTH
                 )
                 ->setPageSize($pageSize)
-                ->setCurPage($currentPage)
-                ->setOrder(self::CREATED_AT, Varien_Data_Collection::SORT_ORDER_DESC);
+                ->setCurPage($currentPage);
             if ($currentPage > $products->getLastPageNumber()) {
                 $products = array();
             }
             $collection = new NostoExportProductCollection();
-            /** @var Mage_Catalog_Model_Product $product */
             foreach ($products as $product) {
-                /** @var Nosto_Tagging_Model_Meta_Product $meta */
-                $meta = Mage::getModel('nosto_tagging/meta_product');
-                $meta->loadData($product);
-                $validator = new NostoValidator($meta);
-                if ($validator->validate()) {
-                    $collection[] = $meta;
+                if ($product->getTypeId() === Mage_Catalog_Model_Product_Type::TYPE_BUNDLE
+                    && (int)$product->getPriceType() === Mage_Bundle_Model_Product_Price::PRICE_TYPE_FIXED
+                ) {
+                    continue;
                 }
+                $meta = new Nosto_Tagging_Model_Meta_Product();
+                $meta->loadData($product);
+                $collection[] = $meta;
             }
             $this->export($collection);
         }
@@ -164,13 +115,11 @@ class Nosto_Tagging_ExportController extends Mage_Core_Controller_Front_Action
     /**
      * Encrypts the export collection and outputs it to the browser.
      *
-     * @param NostoExportCollectionInterface $collection the data collection to export.
+     * @param NostoExportCollection $collection the data collection to export.
      */
-    protected function export(NostoExportCollectionInterface $collection)
+    protected function export(NostoExportCollection $collection)
     {
-        /** @var Nosto_Tagging_Helper_Account $helper */
-        $helper = Mage::helper('nosto_tagging/account');
-        $account = $helper->find();
+        $account = Mage::helper('nosto_tagging/account')->find();
         if ($account !== null) {
             $cipherText = NostoExporter::export($account, $collection);
             echo $cipherText;

@@ -1,9 +1,9 @@
 <?php
 /**
  * Magento
- *  
+ *
  * NOTICE OF LICENSE
- *  
+ *
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is bundled with this package in the file LICENSE.txt.
  * It is also available through the world-wide-web at this URL:
@@ -11,17 +11,17 @@
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
  * to license@magentocommerce.com so we can send you a copy immediately.
- *  
+ *
  * DISCLAIMER
- *  
+ *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
- *  
+ *
  * @category  Nosto
  * @package   Nosto_Tagging
  * @author    Nosto Solutions Ltd <magento@nosto.com>
- * @copyright Copyright (c) 2013-2017 Nosto Solutions Ltd (http://www.nosto.com)
+ * @copyright Copyright (c) 2013-2015 Nosto Solutions Ltd (http://www.nosto.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -46,7 +46,7 @@ class Nosto_Tagging_Model_Meta_Account_Owner extends Mage_Core_Model_Abstract im
     protected $_lastName;
 
     /**
-     * @var string the account owner email address.
+     * @var    string the account owner email address.
      */
     protected $_email;
 
@@ -59,19 +59,27 @@ class Nosto_Tagging_Model_Meta_Account_Owner extends Mage_Core_Model_Abstract im
     }
 
     /**
-     * Loads the user data from the active session.
+     * Loads the meta data for the given store.
      *
+     * @param Mage_Core_Model_Store $store the store view to load the data for.
      */
-    public function loadData()
+    public function loadData(Mage_Core_Model_Store $store)
     {
         /** @var Mage_Admin_Model_User $user */
-        /** @noinspection PhpUndefinedMethodInspection */
         $user = Mage::getSingleton('admin/session')->getUser();
-        if ($user) {
-            $this->_firstName = $user->getFirstname();
-            $this->_lastName = $user->getLastname();
-            $this->_email = $user->getEmail();
-        }
+        $this->_firstName = $user->getFirstname();
+        $this->_lastName = $user->getLastname();
+        $this->_email = $user->getEmail();
+    }
+
+    /**
+     * Sets the first name of the account owner.
+     *
+     * @param string $firstName the first name.
+     */
+    public function setFirstName($firstName)
+    {
+        $this->_firstName = $firstName;
     }
 
     /**
@@ -85,6 +93,16 @@ class Nosto_Tagging_Model_Meta_Account_Owner extends Mage_Core_Model_Abstract im
     }
 
     /**
+     * Sets the last name of the account owner.
+     *
+     * @param string $lastName the last name.
+     */
+    public function setLastName($lastName)
+    {
+        $this->_lastName = $lastName;
+    }
+
+    /**
      * The last name of the account owner.
      *
      * @return string the last name.
@@ -95,6 +113,16 @@ class Nosto_Tagging_Model_Meta_Account_Owner extends Mage_Core_Model_Abstract im
     }
 
     /**
+     * Sets the email address of the account owner.
+     *
+     * @param string $email the email address.
+     */
+    public function setEmail($email)
+    {
+        $this->_email = $email;
+    }
+
+    /**
      * The email address of the account owner.
      *
      * @return string the email address.
@@ -102,15 +130,5 @@ class Nosto_Tagging_Model_Meta_Account_Owner extends Mage_Core_Model_Abstract im
     public function getEmail()
     {
         return $this->_email;
-    }
-
-    /**
-     * Sets the owner email address.
-     *
-     * @param string $email the email address.
-     */
-    public function setEmail($email)
-    {
-        $this->_email = $email;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016, Nosto Solutions Ltd
+ * Copyright (c) 2015, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,9 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2016 Nosto Solutions Ltd
+ * @copyright 2015 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
- *
  */
 
 /**
@@ -43,27 +42,11 @@ class NostoHttpRequest
     const AUTH_BEARER = 'bearer';
 
     const PATH_ACCOUNT_DELETED = '/hub/uninstall';
-    const PATH_SSO_AUTH = '/hub/{platform}/load/{email}';
 
     /**
      * @var string base url for the nosto web hook requests.
      */
     public static $baseUrl = 'https://my.nosto.com';
-
-    /**
-     * @var string user-agent to use for all requests
-     */
-    public static $userAgent = '';
-
-    /**
-     * @var int timeout for waiting response from the api
-     */
-    public static $responseTimeout = 5;
-
-    /**
-     * @var int timeout for connecting to the api
-     */
-    public static $connectTimeout = 5;
 
     /**
      * @var string the request url.
@@ -74,11 +57,6 @@ class NostoHttpRequest
      * @var array list of headers to include in the requests.
      */
     protected $headers = array();
-
-    /**
-     * @var string the request content (populated in post() and put() methods).
-     */
-    protected $content = '';
 
     /**
      * @var array list of optional query params that are added to the request url.
@@ -108,9 +86,9 @@ class NostoHttpRequest
         if ($adapter !== null) {
             $this->adapter = $adapter;
         } elseif (function_exists('curl_exec')) {
-            $this->adapter = new NostoHttpRequestAdapterCurl(self::$userAgent);
+            $this->adapter = new NostoHttpRequestAdapterCurl();
         } else {
-            $this->adapter = new NostoHttpRequestAdapterSocket(self::$userAgent);
+            $this->adapter = new NostoHttpRequestAdapterSocket();
         }
     }
 
@@ -353,34 +331,11 @@ class NostoHttpRequest
      */
     public function post($content)
     {
-        $this->content = $content;
         $url = $this->url;
         if (!empty($this->replaceParams)) {
             $url = self::buildUri($url, $this->replaceParams);
         }
         return $this->adapter->post(
-            $url,
-            array(
-                'headers' => $this->headers,
-                'content' => $content,
-            )
-        );
-    }
-
-    /**
-     * Sends a PUT request.
-     *
-     * @param string $content
-     * @return NostoHttpResponse
-     */
-    public function put($content)
-    {
-        $this->content = $content;
-        $url = $this->url;
-        if (!empty($this->replaceParams)) {
-            $url = self::buildUri($url, $this->replaceParams);
-        }
-        return $this->adapter->put(
             $url,
             array(
                 'headers' => $this->headers,
@@ -407,57 +362,6 @@ class NostoHttpRequest
             $url,
             array(
                 'headers' => $this->headers,
-            )
-        );
-    }
-
-    /**
-     * Sends a DELETE request.
-     *
-     * @return NostoHttpResponse
-     */
-    public function delete()
-    {
-        $url = $this->url;
-        if (!empty($this->replaceParams)) {
-            $url = self::buildUri($url, $this->replaceParams);
-        }
-        return $this->adapter->delete(
-            $url,
-            array(
-                'headers' => $this->headers,
-            )
-        );
-    }
-
-    /**
-     * Builds the custom-user agent by using the platform's name and version with the
-     * plugin version
-     *
-     * @param string $platformName the name of the platform using the SDK
-     * @param array $platformVersion the version of the platform using the SDK
-     * @param array $pluginVersion the version of the plugin using the SDK
-     */
-    public static function buildUserAgent($platformName, $platformVersion, $pluginVersion)
-    {
-        self::$userAgent = sprintf('Nosto %s / %s %s', $pluginVersion, $platformName, $platformVersion);
-    }
-
-    /**
-     * Converts the request to a string and returns it.
-     * Used when logging http request errors.
-     */
-    public function __toString()
-    {
-        $url = $this->url;
-        if (!empty($this->replaceParams)) {
-            $url = self::buildUri($url, $this->replaceParams);
-        }
-        return serialize(
-            array(
-                'url' => $url,
-                'headers' => $this->headers,
-                'body' => $this->content,
             )
         );
     }

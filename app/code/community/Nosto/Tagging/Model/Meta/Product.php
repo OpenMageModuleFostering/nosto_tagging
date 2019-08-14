@@ -1,9 +1,9 @@
 <?php
 /**
  * Magento
- *  
+ *
  * NOTICE OF LICENSE
- *  
+ *
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is bundled with this package in the file LICENSE.txt.
  * It is also available through the world-wide-web at this URL:
@@ -11,17 +11,17 @@
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
  * to license@magentocommerce.com so we can send you a copy immediately.
- *  
+ *
  * DISCLAIMER
- *  
+ *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
- *  
+ *
  * @category  Nosto
  * @package   Nosto_Tagging
  * @author    Nosto Solutions Ltd <magento@nosto.com>
- * @copyright Copyright (c) 2013-2017 Nosto Solutions Ltd (http://www.nosto.com)
+ * @copyright Copyright (c) 2013-2015 Nosto Solutions Ltd (http://www.nosto.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -34,8 +34,23 @@
  * @package  Nosto_Tagging
  * @author   Nosto Solutions Ltd <magento@nosto.com>
  */
-class Nosto_Tagging_Model_Meta_Product extends Nosto_Tagging_Model_Base implements NostoProductInterface, NostoValidatableInterface
+class Nosto_Tagging_Model_Meta_Product extends Mage_Core_Model_Abstract implements NostoProductInterface
 {
+    /**
+     * Product "in stock" tagging string.
+     */
+    const PRODUCT_IN_STOCK = 'InStock';
+
+    /**
+     * Product "out of stock" tagging string.
+     */
+    const PRODUCT_OUT_OF_STOCK = 'OutOfStock';
+
+    /**
+     * Product "can be directly added to cart" tag string.
+     */
+    const PRODUCT_ADD_TO_CART = 'add-to-cart';
+
     /**
      * @var string the absolute url to the product page in the shop frontend.
      */
@@ -102,77 +117,9 @@ class Nosto_Tagging_Model_Meta_Product extends Nosto_Tagging_Model_Base implemen
     protected $_brand;
 
     /**
-     * @var string the default variation identifier of the shop
+     * @var string the product publication date in the shop.
      */
-    protected $_variationId;
-
-    /**
-     * @var float the price paid for the supplier
-     */
-    protected $_supplierCost;
-
-    /**
-     * @var int product stock
-     */
-    protected $_inventoryLevel;
-
-    /**
-     * @var int the amount of reviews
-     */
-    protected $_reviewCount;
-
-    /**
-     * @var float the value of the rating(s)
-     */
-    protected $_ratingValue;
-
-    /**
-     * @var array alternative image urls
-     */
-    protected $_alternateImageUrls;
-
-    /**
-     * @var string the condition of the product
-     */
-    protected $_condition;
-
-    /**
-     * @var string the gender (target group) of the product
-     */
-    protected $_gender;
-
-    /**
-     * @var string the the age group
-     */
-    protected $_ageGroup;
-
-    /**
-     * @var string the barcode
-     */
-    protected $_gtin;
-
-    /**
-     * @var string category used in Google's services
-     */
-    protected $_googleCategory;
-
-    /**
-     * @var string the pricing measure of the product. Pricing measure for a
-     * 0.33 liter bottle for example is "0.33".
-     */
-    protected $_unitPricingMeasure;
-
-    /**
-     * @var string the pricing base measure of the product. Pricing base measure
-     * for a 0.33l bottle is "1".
-     */
-    protected $_unitPricingBaseMeasure;
-
-    /**
-     * @var string the pricing unit of the product. Pricing unit for a 0.33l
-     * bottle is "l" (litre).
-     */
-    protected $_unitPricingUnit;
+    protected $_datePublished;
 
     /**
      * @inheritdoc
@@ -180,418 +127,6 @@ class Nosto_Tagging_Model_Meta_Product extends Nosto_Tagging_Model_Base implemen
     protected function _construct()
     {
         $this->_init('nosto_tagging/meta_product');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getValidationRules()
-    {
-        return array(
-            array(
-                array(
-                    '_url',
-                    '_productId',
-                    '_name',
-                    '_imageUrl',
-                    '_price',
-                    '_listPrice',
-                    '_currencyCode',
-                    '_availability'
-                ),
-                'required'
-            )
-        );
-    }
-
-    /**
-     * Array of attributes that can be customized from Nosto's store admin
-     * settings
-     *
-     * @var array
-     */
-    public static $customizableAttributes = array(
-        'gtin' => '_gtin',
-        'supplier_cost' => '_supplierCost',
-    );
-
-    public function __construct()
-    {
-        parent::__construct();
-        foreach (Nosto_Tagging_Helper_Data::$validTags as $validTag) {
-            $this->_tags[$validTag] = array();
-        }
-        $this->_alternateImageUrls = array();
-    }
-
-    /**
-     * Loads the product info from a Magento product model.
-     *
-     * @param Mage_Catalog_Model_Product $product the product model.
-     * @param Mage_Core_Model_Store|null $store the store to get the product data for.
-     */
-    public function loadData(Mage_Catalog_Model_Product $product, Mage_Core_Model_Store $store = null)
-    {
-        if (is_null($store)) {
-            $store = Mage::app()->getStore();
-        }
-
-        /** @var Nosto_Tagging_Helper_Price $priceHelper */
-        $priceHelper = Mage::helper('nosto_tagging/price');
-        /** @var Nosto_Tagging_Helper_Data $dataHelper */
-        $dataHelper = Mage::helper('nosto_tagging');
-
-        $this->_url = $this->buildUrl($product, $store);
-        $this->_productId = $product->getId();
-        $this->_name = $product->getName();
-        $this->_imageUrl = $this->buildImageUrl($product, $store);
-        $currentCurrencyCode = $store->getCurrentCurrencyCode();
-        $this->_price = $priceHelper->getTaggingPrice(
-            $priceHelper->getProductFinalPriceInclTax($product),
-            $currentCurrencyCode,
-            $store
-        );
-        $this->_listPrice = $priceHelper->getTaggingPrice(
-            $priceHelper->getProductPriceInclTax($product),
-            $currentCurrencyCode,
-            $store
-        );
-        $this->_currencyCode = $priceHelper->getTaggingCurrencyCode($currentCurrencyCode, $store);
-        $this->_availability = $this->buildAvailability($product);
-        $this->_categories = $this->buildCategories($product);
-
-        // Optional properties.
-
-        if ($product->hasData('short_description')) {
-            $this->_shortDescription = $product->getData('short_description');
-        }
-        if ($product->hasData('description')) {
-            $this->_description = $product->getData('description');
-        }
-        $brandAttribute = $dataHelper->getBrandAttribute($store);
-        if ($product->hasData($brandAttribute)) {
-            $this->_brand = $this->getAttributeValue($product, $brandAttribute);
-        }
-        if (($tags = $this->buildTags($product, $store)) !== array()) {
-            $this->_tags['tag1'] = $tags;
-        }
-        if (!$dataHelper->multiCurrencyDisabled($store)) {
-            $this->_variationId = $store->getBaseCurrencyCode();
-        }
-
-        $this->amendAttributeTags($product, $store);
-        $this->amendReviews($product, $store);
-        $this->amendCustomizableAttributes($product, $store);
-        $this->amendAlternativeImages($product, $store);
-        $this->amendInventoryLevel($product);
-    }
-
-    /**
-     * Builds the availability for the product.
-     *
-     * @param Mage_Catalog_Model_Product $product the product model.
-     *
-     * @return string
-     */
-    protected function buildAvailability(Mage_Catalog_Model_Product $product)
-    {
-        $availability = self::OUT_OF_STOCK;
-        if(!$product->isVisibleInSiteVisibility()) {
-            $availability = self::INVISIBLE;
-        } elseif ($product->isAvailable()) {
-            $availability = self::IN_STOCK;
-        }
-
-        return $availability;
-    }
-
-
-    /**
-     * Builds the "tag1" tags.
-     *
-     * These include any "tag/tag" model names linked to the product, as well
-     * as a special "add-to-cart" tag if the product can be added to the
-     * cart directly without any choices, i.e. it is a non-configurable simple
-     * product.
-     * This special tag can then be used in the store frontend to enable a
-     * "add to cart" button in the product recommendations.
-     *
-     * @param Mage_Catalog_Model_Product $product the product model.
-     * @param Mage_Core_Model_Store      $store the store model.
-     *
-     * @return array
-     */
-    protected function buildTags(Mage_Catalog_Model_Product $product, Mage_Core_Model_Store $store)
-    {
-        $tags = array();
-
-        if (Mage::helper('core')->isModuleEnabled('Mage_Tag')) {
-            $tagCollection = Mage::getModel('tag/tag')
-                ->getCollection()
-                ->addPopularity()
-                ->addStatusFilter(Mage_Tag_Model_Tag::STATUS_APPROVED)
-                ->addProductFilter($product->getId())
-                ->setFlag('relation', true)
-                ->addStoreFilter($store->getId())
-                ->setActiveFilter();
-            foreach ($tagCollection as $tag) {
-                /** @var Mage_Tag_Model_Tag $tag */
-                $tags[] = $tag->getName();
-            }
-        }
-
-        if (!$product->canConfigure()) {
-            $tags[] = self::ADD_TO_CART;
-        }
-
-        return $tags;
-    }
-
-    /**
-     * Adds the stock level / inventory level
-     *
-     * @param Mage_Catalog_Model_Product $product the product model.
-     *
-     */
-    protected function amendInventoryLevel(
-        Mage_Catalog_Model_Product $product
-    ) {
-        /* @var Nosto_Tagging_Helper_Stock $stockHelper */
-        $stockHelper = Mage::helper('nosto_tagging/stock');
-        try {
-            $this->_inventoryLevel = $stockHelper->getQty($product);
-        } catch (Exception $e) {
-            Mage::log(
-                sprintf(
-                    'Failed to resolve inventory level for product %d to tags. Error message was: %s',
-                    $product->getId(),
-                    $e->getMessage()
-                ),
-                Zend_Log::WARN,
-                Nosto_Tagging_Model_Base::LOG_FILE_NAME
-            );
-        }
-    }
-
-    /**
-     * Adds the alternative image urls
-     *
-     * @param Mage_Catalog_Model_Product $product the product model.
-     * @param Mage_Core_Model_Store      $store the store model.
-     *
-     */
-    protected function amendAlternativeImages(
-        Mage_Catalog_Model_Product $product,
-        Mage_Core_Model_Store $store
-    ) {
-        /* @var Mage_Catalog_Model_Product_Attribute_Media_Api $mediaApi */
-        $mediaApi = Mage::getModel('catalog/product_attribute_media_api');
-        $mediaItems = $mediaApi->items($product->getId(), $store);
-        if (is_array($mediaItems)) {
-            foreach ($mediaItems as $image) {
-                $this->addAlternateImage($image);
-            }
-        }
-    }
-
-    /**
-     * Amends the product reviews product
-     *
-     * @param Mage_Catalog_Model_Product $product the product model.
-     * @param Mage_Core_Model_Store      $store the store model.
-     *
-     */
-    protected function amendReviews(Mage_Catalog_Model_Product $product, Mage_Core_Model_Store $store)
-    {
-        /* @var Nosto_Tagging_Helper_Data $dataHelper*/
-        $dataHelper = Mage::helper('nosto_tagging');
-        $ratingProvider = $dataHelper->getRatingsAndReviewsProvider($store);
-        if ($ratingProvider) {
-            /* @var Nosto_Tagging_Helper_Class $classHelper */
-            $classHelper = Mage::helper('nosto_tagging/class');
-            /* @var Nosto_Tagging_Model_Meta_Rating $ratingClass */
-            $ratingClass = $classHelper->getRatingClass($store);
-            if ($ratingClass instanceof Nosto_Tagging_Model_Meta_Rating_Interface) {
-                $ratingClass->init($product, $store);
-                if ($ratingClass->getRating()) {
-                    $this->_ratingValue = $ratingClass->getRating();
-                }
-                if ($ratingClass->getReviewCount()) {
-                    $this->_reviewCount = $ratingClass->getReviewCount();
-                }
-            } else {
-                Mage::log(
-                    sprintf(
-                        'No rating class implementation found for %s',
-                        $ratingProvider
-                    ),
-                    Zend_Log::WARN,
-                    Nosto_Tagging_Model_Base::LOG_FILE_NAME
-                );
-            }
-        }
-    }
-
-    /**
-     * Amends the customizable attributes
-     *
-     * @param Mage_Catalog_Model_Product $product the product model.
-     * @param Mage_Core_Model_Store      $store the store model.
-     *
-     */
-    protected function amendCustomizableAttributes(Mage_Catalog_Model_Product $product, Mage_Core_Model_Store $store)
-    {
-        /* @var Nosto_Tagging_Helper_Data $nosto_helper */
-        $nosto_helper = Mage::helper("nosto_tagging");
-
-        foreach (self::$customizableAttributes as $mageAttr => $nostoAttr) {
-            $mapped = $nosto_helper->getMappedAttribute($mageAttr, $store);
-            if ($mapped) {
-                $value = $this->getAttributeValue($product, $mapped);
-                if(!empty($value)) {
-                    $this->$nostoAttr = $value;
-                }
-            }
-        }
-    }
-
-    /**
-     * Amends the product attributes to tags array if attributes are defined
-     * and are present in product
-     *
-     * @param Mage_Catalog_Model_Product $product the product model.
-     * @param Mage_Core_Model_Store      $store the store model.
-     *
-     */
-    protected function amendAttributeTags(Mage_Catalog_Model_Product $product, Mage_Core_Model_Store $store)
-    {
-        $product_attributes = $product->getAttributes();
-        /* @var Nosto_Tagging_Helper_Data $nosto_helper */
-        $nosto_helper = Mage::helper("nosto_tagging");
-
-        foreach (Nosto_Tagging_Helper_Data::$validTags as $tag_id) {
-            $attributes_to_tag = $nosto_helper->getAttributesToTag($tag_id, $store->getId());
-            if (empty($attributes_to_tag) || !is_array($attributes_to_tag)) {
-                continue;
-            }
-            /* @var Mage_Catalog_Model_Resource_Eav_Attribute $product_attribute*/
-            foreach ($product_attributes as $key=>$product_attribute) {
-                if (in_array($key, $attributes_to_tag)) {
-                    try {
-                        $attribute_value = $this->getAttributeValue($product, $key);
-                        if (!empty($attribute_value)) {
-                            $this->_tags[$tag_id][] = sprintf(
-                                '%s:%s',
-                                $key,
-                                $attribute_value
-                            );
-                        }
-                    } catch (Exception $e) {
-                        Mage::log(
-                            sprintf(
-                                'Failed to add attribute %s to tags. Error message was: %s',
-                                $key,
-                                $e->getMessage()
-                            ),
-                            Zend_Log::WARN,
-                            Nosto_Tagging_Model_Base::LOG_FILE_NAME
-                        );
-                    }
-                }
-            }
-        }
-    }
-
-    /**
-     * Builds the absolute store front url for the product page.
-     *
-     * The url includes the "___store" GET parameter in order for the Nosto
-     * crawler to distinguish between stores that do not have separate domains
-     * or paths.
-     *
-     * @param Mage_Catalog_Model_Product $product the product model.
-     * @param Mage_Core_Model_Store      $store the store model.
-     *
-     * @return string
-     */
-    protected function buildUrl(Mage_Catalog_Model_Product $product, Mage_Core_Model_Store $store)
-    {
-        /** @var Nosto_Tagging_Helper_Url $url_helper */
-        $url_helper = Mage::helper('nosto_tagging/url');
-        $product_url = $url_helper->generateProductUrl($product, $store);
-        return $product_url;
-    }
-
-    /**
-     * Builds the product absolute image url for the store and returns it.
-     * The image version is primarily taken from the store config, but falls
-     * back the the base image if nothing is configured.
-     *
-     * @param Mage_Catalog_Model_Product $product the product model.
-     * @param Mage_Core_Model_Store      $store the store model.
-     *
-     * @return null|string
-     */
-    protected function buildImageUrl(Mage_Catalog_Model_Product $product, Mage_Core_Model_Store $store)
-    {
-        $url = null;
-        /** @var Nosto_Tagging_Helper_Data $helper */
-        $helper = Mage::helper('nosto_tagging');
-        $imageVersion = $helper->getProductImageVersion($store);
-        $img = $product->getData($imageVersion);
-        $img = $this->isValidImage($img) ? $img : $product->getData('image');
-        if ($this->isValidImage($img)) {
-            // We build the image url manually in order get the correct base
-            // url, even if this product is populated in the backend.
-            $baseUrl = rtrim($store->getBaseUrl('media'), '/');
-            $file = str_replace(DS, '/', $img);
-            $file = ltrim($file, '/');
-            $url = $baseUrl.'/catalog/product/'.$file;
-        }
-        return $url;
-    }
-
-    /**
-     * Return array of categories for the product.
-     * The items in the array are strings combined of the complete category
-     * path to the products own category.
-     *
-     * Structure:
-     * array (
-     *     /Electronics/Computers
-     * )
-     *
-     * @param Mage_Catalog_Model_Product $product the product model.
-     *
-     * @return array
-     */
-    protected function buildCategories(Mage_Catalog_Model_Product $product)
-    {
-        $data = array();
-
-        /** @var Nosto_Tagging_Helper_Data $helper */
-        $helper = Mage::helper('nosto_tagging');
-        $categoryCollection = $product->getCategoryCollection();
-        foreach ($categoryCollection as $category) {
-            $categoryString = $helper->buildCategoryString($category);
-            if (!empty($categoryString)) {
-                $data[] = $categoryString;
-            }
-        }
-        
-        return array_unique($data);
-    }
-
-    /**
-     * Checks if the given image file path is valid.
-     *
-     * @param string $image the image file path.
-     *
-     * @return bool
-     */
-    protected function isValidImage($image)
-    {
-        return (!empty($image) && $image !== 'no_selection');
     }
 
     /**
@@ -605,6 +140,16 @@ class Nosto_Tagging_Model_Meta_Product extends Nosto_Tagging_Model_Base implemen
     }
 
     /**
+     * Setter for the absolute url to the product page in the shop frontend.
+     *
+     * @param $url string the url.
+     */
+    public function setUrl($url)
+    {
+        $this->_url = $url;
+    }
+
+    /**
      * Returns the product's unique identifier.
      *
      * @return int|string the ID.
@@ -615,7 +160,7 @@ class Nosto_Tagging_Model_Meta_Product extends Nosto_Tagging_Model_Base implemen
     }
 
     /**
-     * Setter for the product's unique identifier.
+     * Sets the product's unique identifier.
      *
      * @param int|string $productId the ID.
      */
@@ -687,7 +232,7 @@ class Nosto_Tagging_Model_Meta_Product extends Nosto_Tagging_Model_Base implemen
     /**
      * Returns the tags for the product.
      *
-     * @return array the tags array, e.g. array('tag1' => array("winter", "shoe")).
+     * @return array the tags array, e.g. array("winter", "shoe").
      */
     public function getTags()
     {
@@ -735,170 +280,113 @@ class Nosto_Tagging_Model_Meta_Product extends Nosto_Tagging_Model_Base implemen
     }
 
     /**
-     * Returns the full product description,
-     * i.e. both the "short" and "normal" descriptions concatenated.
+     * Returns the product publication date in the shop.
      *
-     * @return string the full descriptions.
+     * @return string the date.
      */
-    public function getFullDescription()
+    public function getDatePublished()
     {
-        $descriptions = array();
-        if (!empty($this->_shortDescription)) {
-            $descriptions[] = $this->_shortDescription;
-        }
-        if (!empty($this->_description)) {
-            $descriptions[] = $this->_description;
-        }
-        return implode(' ', $descriptions);
+        return $this->_datePublished;
     }
 
     /**
-     * Returns the product variation id.
+     * Loads the product info from a Magento product model.
      *
-     * @return mixed|null
+     * @param Mage_Catalog_Model_Product $product the product model.
      */
-    public function getVariationId()
+    public function loadData(Mage_Catalog_Model_Product $product)
     {
-        return $this->_variationId;
-    }
+        // Unset the cached url first, as it won't include the `___store` param.
+        // We need to define the specific store view in the url for the crawler
+        // to see the correct product data when crawling the site.
+        $this->_url = $product
+            ->unsetData('url')
+            ->getUrlInStore(array('_ignore_category' => true));
 
-    /**
-     * Fetches the value of a product attribute
-     *
-     * @param Mage_Catalog_Model_Product $product
-     * @param string $attributeName
-     * @return string
-     */
-    protected function getAttributeValue(Mage_Catalog_Model_Product $product, $attributeName)
-    {
-        $attribute = $product->getResource()->getAttribute($attributeName);
-        if ($attribute instanceof Mage_Catalog_Model_Resource_Eav_Attribute) {
-            $attribute_data = $product->getData($attributeName);
-            /** @noinspection PhpParamsInspection */
-            $attribute_value = $product->getAttributeText($attributeName);
-            if (empty($attribute_value) && is_scalar($attribute_data)) {
-                $attribute_value = $attribute_data;
-            }
+        $this->_productId = $product->getId();
+        $this->_name = $product->getName();
+
+        if (!$product->getImage() || $product->getImage() == 'no_selection') {
+            $this->_imageUrl = $product->getImageUrl();
         } else {
-            $attribute_value = null;
+            $this->_imageUrl = $product->getMediaConfig()
+                ->getMediaUrl($product->getImage());
         }
 
-        return trim($attribute_value);
-    }
+        $this->_price = Mage::helper('tax')->getPrice(
+            $product,
+            Mage::helper('nosto_tagging/price')->getProductFinalPrice($product),
+            true
+        );
+        $this->_listPrice = Mage::helper('tax')->getPrice(
+            $product,
+            Mage::helper('nosto_tagging/price')->getProductPrice($product),
+            true
+        );
+        $this->_currencyCode = Mage::app()->getStore()
+            ->getCurrentCurrencyCode();
 
-    /**
-     * @inheritdoc
-     */
-    public function getSupplierCost()
-    {
-        return $this->_supplierCost;
-    }
+        $this->_availability = $product->isAvailable()
+            ? self::PRODUCT_IN_STOCK
+            : self::PRODUCT_OUT_OF_STOCK;
 
-    /**
-     * @inheritdoc
-     */
-    public function getInventoryLevel()
-    {
-        return $this->_inventoryLevel;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getReviewCount()
-    {
-        return $this->_reviewCount;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getRatingValue()
-    {
-        return $this->_ratingValue;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getAlternateImageUrls()
-    {
-        return $this->_alternateImageUrls;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getCondition()
-    {
-        return $this->_condition;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getGender()
-    {
-        return $this->_gender;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getAgeGroup()
-    {
-        return $this->_ageGroup;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getGtin()
-    {
-        return $this->_gtin;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getGoogleCategory()
-    {
-        return $this->_googleCategory;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getUnitPricingMeasure()
-    {
-        return $this->_unitPricingMeasure;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getUnitPricingBaseMeasure()
-    {
-        return $this->_unitPricingBaseMeasure;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getUnitPricingUnit()
-    {
-        return $this->_unitPricingUnit;
-    }
-
-    public function addAlternateImage(array $image)
-    {
-        if (
-            isset($image['url'])
-            && (isset($image['exclude']) && empty($image['exclude']))
-            && !in_array($image['url'], $this->_alternateImageUrls)
-            && $image['url'] != $this->_imageUrl
-        ) {
-            $this->_alternateImageUrls[] = $image['url'];
+        if (Mage::helper('core')->isModuleEnabled('Mage_Tag')) {
+            $tagCollection = Mage::getModel('tag/tag')
+                ->getCollection()
+                ->addPopularity()
+                ->addStatusFilter(Mage_Tag_Model_Tag::STATUS_APPROVED)
+                ->addProductFilter($product->getId())
+                ->setFlag('relation', true)
+                ->addStoreFilter(Mage::app()->getStore()->getId())
+                ->setActiveFilter();
+            foreach ($tagCollection as $tag) {
+                $this->_tags[] = $tag->getName();
+            }
         }
+
+        if (!$product->canConfigure()) {
+            $this->_tags[] = self::PRODUCT_ADD_TO_CART;
+        }
+
+        $this->_categories = $this->getProductCategories($product);
+        $this->_shortDescription = (string)$product->getShortDescription();
+        $this->_description = (string)$product->getDescription();
+        $this->_brand = $product->getManufacturer()
+            ? (string)$product->getAttributeText('manufacturer')
+            : '';
+
+        $this->_datePublished = $product->getCreatedAt();
+    }
+
+    /**
+     * Return array of categories for the product.
+     * The items in the array are strings combined of the complete category
+     * path to the products own category.
+     *
+     * Structure:
+     * array (
+     *     /Electronics/Computers
+     * )
+     *
+     * @param Mage_Catalog_Model_Product $product the product model.
+     *
+     * @return array
+     */
+    public function getProductCategories(Mage_Catalog_Model_Product $product)
+    {
+        $data = array();
+
+        if ($product instanceof Mage_Catalog_Model_Product) {
+            $categoryCollection = $product->getCategoryCollection();
+            foreach ($categoryCollection as $category) {
+                $categoryString = Mage::helper('nosto_tagging')
+                    ->buildCategoryString($category);
+                if (!empty($categoryString)) {
+                    $data[] = $categoryString;
+                }
+            }
+        }
+
+        return $data;
     }
 }

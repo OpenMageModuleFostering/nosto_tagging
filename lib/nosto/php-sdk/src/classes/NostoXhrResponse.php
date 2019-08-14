@@ -34,65 +34,70 @@
  */
 
 /**
- * Helper class that represents a oauth2 access token.
+ * Util class for representing a XHR response object used when responding to
+ * account administration iframe API calls.
  */
-class NostoOAuthToken
+class NostoXhrResponse
 {
     /**
-     * @var string the access token string.
+     * @var string the `Content-Type` of the response.
      */
-    public $accessToken;
+    public $contentType = 'application/json';
 
     /**
-     * @var string the merchant name string.
+     * @var bool the response success flag.
      */
-    public $merchantName;
+    protected $success = false;
 
     /**
-     * @var string the type of token, e.g. "bearer".
+     * @var string the response redirect url.
      */
-    public $tokenType;
+    protected $redirectUrl;
 
     /**
-     * @var int the amount of time this token is valid for.
-     */
-    public $expiresIn;
-
-    /**
-     * Creates a new token instance and populates it with the given data.
+     * Sets the response success state.
      *
-     * @param array $data the data to put in the token.
-     * @return NostoOAuthToken
+     * @param boolean $success the state.
+     * @return NostoXhrResponse the response instance.
      */
-    public static function create(array $data)
+    public function setSuccess($success)
     {
-        $token = new self();
-        foreach ($data as $key => $value) {
-            $key = self::underscore2CamelCase($key);
-            if (property_exists($token, $key)) {
-                $token->{$key} = $value;
-            }
-        }
-        return $token;
+        $this->success = $success;
+        return $this;
     }
 
     /**
-     * Converts string from underscore format to camel case format, e.g. variable_name => variableName.
+     * Sets the response redirect url.
      *
-     * @param string $str the underscore formatted string to convert.
-     * @return string the converted string.
+     * @param string $url the url.
+     * @return NostoXhrResponse the response instance.
      */
-    protected static function underscore2CamelCase($str)
+    public function setRedirectUrl($url)
     {
-        // Non-alpha and non-numeric characters become spaces.
-        $str = preg_replace('/[^a-z0-9]+/i', ' ', $str);
-        // Uppercase the first character of each word.
-        $str = ucwords(trim($str));
-        // Remove all spaces.
-        $str = str_replace(" ", "", $str);
-        // Lowercase the first character of the result.
-        $str[0] = strtolower($str[0]);
+        $this->redirectUrl = $url;
+        return $this;
+    }
 
-        return $str;
+    /**
+     * Sends the response, i.e. sends it to the browser.
+     * This method also sends the `Content-Type` header for the response data.
+     */
+    public function send()
+    {
+        header('Content-Type: '.$this->contentType);
+        echo $this;
+    }
+
+    /**
+     * Converts the response to a string and returns it.
+     *
+     * @return string the string representation of the response.
+     */
+    public function __toString()
+    {
+        return (string)json_encode(array(
+            'success' => (bool)$this->success,
+            'redirect_url' => (string)$this->redirectUrl,
+        ));
     }
 }

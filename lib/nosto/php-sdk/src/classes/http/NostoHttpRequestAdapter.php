@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016, Nosto Solutions Ltd
+ * Copyright (c) 2015, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,9 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2016 Nosto Solutions Ltd
+ * @copyright 2015 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
- *
  */
 
 /**
@@ -80,22 +79,4 @@ abstract class NostoHttpRequestAdapter
      * @return NostoHttpResponse the response object.
      */
     abstract public function post($url, array $options = array());
-
-    /**
-     * Does a PUT request and returns the http response object.
-     *
-     * @param string $url the URL to request.
-     * @param array $options the request options.
-     * @return NostoHttpResponse the response object.
-     */
-    abstract public function put($url, array $options = array());
-
-    /**
-     * Does a DELETE request and returns the http response object.
-     *
-     * @param string $url the URL to request.
-     * @param array $options the request options.
-     * @return NostoHttpResponse the response object.
-     */
-    abstract public function delete($url, array $options = array());
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016, Nosto Solutions Ltd
+ * Copyright (c) 2015, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,65 +29,32 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2016 Nosto Solutions Ltd
+ * @copyright 2015 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
- *
  */
 
 /**
  * Class representing an API token for the Nosto API's.
  */
-class NostoApiToken extends NostoObject implements NostoValidatableInterface
+class NostoApiToken
 {
-    const API_SSO = 'sso';
-    const API_PRODUCTS = 'products';
-    const API_EXCHANGE_RATES = 'rates';
-    const API_SETTINGS = 'settings';
-
     /**
      * @var string the token name, must be one of the defined tokens from self::$tokenNames.
      */
-    protected $name;
+    public $name;
 
     /**
      * @var string the token value, e.g. the actual token string.
      */
-    protected $value;
+    public $value;
 
     /**
      * @var array list of valid api tokens to request from Nosto.
      */
     public static $tokenNames = array(
-        self::API_SSO,
-        self::API_PRODUCTS,
-        self::API_EXCHANGE_RATES,
-        self::API_SETTINGS
+        'sso',
+        'products'
     );
-
-    /**
-     * Constructor.
-     * Create a new token with name and value.
-     *
-     * @param string $name the token name (must be one of self::$tokenNames).
-     * @param string $value the token value string.
-     */
-    public function __construct($name, $value)
-    {
-        $this->name = $name;
-        $this->value = $value;
-        $this->validate();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getValidationRules()
-    {
-        return array(
-            array(array('name', 'value'), 'required'),
-            array(array('name'), 'in', self::$tokenNames)
-        );
-    }
 
     /**
      * Parses a list of token name=>value pairs and creates token instances of them.
@@ -103,7 +70,10 @@ class NostoApiToken extends NostoObject implements NostoValidatableInterface
         foreach (self::$tokenNames as $name) {
             $key = $prefix.$name.$postfix;
             if (isset($tokens[$key])) {
-                $parsedTokens[$name] = new self($name, $tokens[$key]);
+                $token = new self();
+                $token->name = $name;
+                $token->value = $tokens[$key];
+                $parsedTokens[$name] = $token;
             }
         }
         return $parsedTokens;
@@ -117,53 +87,5 @@ class NostoApiToken extends NostoObject implements NostoValidatableInterface
     public static function getApiTokenNames()
     {
         return self::$tokenNames;
-    }
-
-    /**
-     * Returns mandatory API token names.
-     *
-     * @return array the token names.
-     */
-    public static function getMandatoryApiTokenNames()
-    {
-        return array(
-            self::API_SSO,
-            self::API_PRODUCTS
-        );
-    }
-
-    /**
-     * Returns the token name.
-     *
-     * @return string the token name.
-     */
-    public function getName()
-    {
-        return $this->name;
-    }
-
-    /**
-     * Returns the tokens value.
-     *
-     * @return string the token value.
-     */
-    public function getValue()
-    {
-        return $this->value;
-    }
-
-    /**
-     * Validates the token attributes.
-     *
-     * @throws NostoException if any attribute is invalid.
-     */
-    protected function validate()
-    {
-        $validator = new NostoValidator($this);
-        if (!$validator->validate()) {
-            foreach ($validator->getErrors() as $errors) {
-                throw new NostoException(sprintf('Invalid Nosto API token. %s', $errors[0]));
-            }
-        }
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016, Nosto Solutions Ltd
+ * Copyright (c) 2015, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,9 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2016 Nosto Solutions Ltd
+ * @copyright 2015 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
- *
  */
 
 /**
@@ -39,6 +38,7 @@
  */
 class NostoHelperIframe extends NostoHelper
 {
+    const IFRAME_URI_MANAGE = '/hub/{platform}/{merchant}';
     const IFRAME_URI_INSTALL = '/hub/{platform}/install';
     const IFRAME_URI_UNINSTALL = '/hub/{platform}/uninstall';
 
@@ -54,42 +54,43 @@ class NostoHelperIframe extends NostoHelper
      */
     public function getUrl(
         NostoAccountMetaDataIframeInterface $meta,
-        NostoAccountInterface $account = null,
+        NostoAccount $account = null,
         array $params = array()
     ) {
-        $defaultParameters = array(
-            'lang' => strtolower($meta->getLanguageIsoCode()),
-            'ps_version' => $meta->getVersionPlatform(),
-            'nt_version' => $meta->getVersionModule(),
-            'product_pu' => $meta->getPreviewUrlProduct(),
-            'category_pu' => $meta->getPreviewUrlCategory(),
-            'search_pu' => $meta->getPreviewUrlSearch(),
-            'cart_pu' => $meta->getPreviewUrlCart(),
-            'front_pu' => $meta->getPreviewUrlFront(),
-            'shop_lang' => strtolower($meta->getLanguageIsoCodeShop()),
-            'shop_name' => $meta->getShopName(),
-            'unique_id' => $meta->getUniqueId(),
-            'fname' => $meta->getFirstName(),
-            'lname' => $meta->getLastName(),
-            'email' => $meta->getEmail(),
-            'modules' => $meta->getModules(),
-        );
-        if ($account instanceof NostoAccountInterface) {
-            $missingScopes = $account->getMissingTokens();
-            if (!empty($missingScopes)) {
-                $defaultParameters['missing_scopes'] = implode(',', $missingScopes);
-            }
-        }
         $queryParams = http_build_query(
             array_merge(
-                $defaultParameters,
+                array(
+                    'lang' => strtolower($meta->getLanguageIsoCode()),
+                    'ps_version' => $meta->getVersionPlatform(),
+                    'nt_version' => $meta->getVersionModule(),
+                    'product_pu' => $meta->getPreviewUrlProduct(),
+                    'category_pu' => $meta->getPreviewUrlCategory(),
+                    'search_pu' => $meta->getPreviewUrlSearch(),
+                    'cart_pu' => $meta->getPreviewUrlCart(),
+                    'front_pu' => $meta->getPreviewUrlFront(),
+                    'shop_lang' => strtolower($meta->getLanguageIsoCodeShop()),
+                    'shop_name' => $meta->getShopName(),
+                    'unique_id' => $meta->getUniqueId(),
+                    'fname' => $meta->getFirstName(),
+                    'lname' => $meta->getLastName(),
+                    'email' => $meta->getEmail(),
+                ),
                 $params
             )
         );
 
         if ($account !== null && $account->isConnectedToNosto()) {
             try {
-                $url = $account->ssoLogin($meta).'?'.$queryParams;
+                $url = $account->ssoLogin($meta);
+                $url .= '?r='.urlencode(
+                        NostoHttpRequest::buildUri(
+                            self::IFRAME_URI_MANAGE.'?'.$queryParams,
+                            array(
+                                '{platform}' => $meta->getPlatform(),
+                                '{merchant}' => $account->name,
+                            )
+                        )
+                    );
             } catch (NostoException $e) {
                 // If the SSO fails, we show a "remove account" page to the user in order to
                 // allow to remove Nosto and start over.

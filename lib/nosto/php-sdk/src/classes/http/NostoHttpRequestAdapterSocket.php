@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2016, Nosto Solutions Ltd
+ * Copyright (c) 2015, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,9 +29,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2016 Nosto Solutions Ltd
+ * @copyright 2015 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
- *
  */
 
 /**
@@ -43,23 +42,6 @@
  */
 class NostoHttpRequestAdapterSocket extends NostoHttpRequestAdapter
 {
-
-    /**
-     * @var string the user-agent to use if specified
-     */
-    private $userAgent = false;
-
-    /**
-     * Constructor.
-     * Creates the http request adapter with the specified user-agent
-     *
-     * @param $userAgent string the user-agent header for all requests
-     */
-    public function __construct($userAgent)
-    {
-        $this->userAgent = $userAgent;
-    }
-
     /**
      * @inheritdoc
      */
@@ -100,45 +82,6 @@ class NostoHttpRequestAdapterSocket extends NostoHttpRequestAdapter
     }
 
     /**
-     * @inheritdoc
-     */
-    public function put($url, array $options = array())
-    {
-        $this->init($options);
-        return $this->send(
-            $url,
-            array(
-                'http' => array(
-                    'method' => 'PUT',
-                    'header' => implode("\r\n", $this->headers),
-                    'content' => $this->content,
-                    // Fetch the content even on failure status codes.
-                    'ignore_errors' => true,
-                ),
-            )
-        );
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function delete($url, array $options = array())
-    {
-        $this->init($options);
-        return $this->send(
-            $url,
-            array(
-                'http' => array(
-                    'method' => 'DELETE',
-                    'header' => implode("\r\n", $this->headers),
-                    // Fetch the content even on failure status codes.
-                    'ignore_errors' => true,
-                ),
-            )
-        );
-    }
-
-    /**
      * Sends the request and creates a NostoHttpResponse instance containing the response headers and body.
      *
      * @param string $url the url for the request.
@@ -147,18 +90,17 @@ class NostoHttpRequestAdapterSocket extends NostoHttpRequestAdapter
      */
     protected function send($url, array $streamOptions)
     {
-        if (!array_key_exists('user_agent', $streamOptions['http']) && $this->userAgent) {
-            $streamOptions['http']['user_agent'] = $this->userAgent;
-        }
-        if (!array_key_exists('timeout', $streamOptions['http'])) {
-            $streamOptions['http']['timeout'] = NostoHttpRequest::$responseTimeout;
-        }
         $context = stream_context_create($streamOptions);
         // We use file_get_contents() directly here as we need the http response headers which are automatically
         // populated into $headers, which is only available in the local scope where file_get_contents()
         // is executed (http://php.net/manual/en/reserved.variables.httpresponseheader.php).
         $http_response_header = array();
         $result = @file_get_contents($url, false, $context);
-        return new NostoHttpResponse($http_response_header, $result);
+        $response = new NostoHttpResponse();
+        if (!empty($http_response_header)) {
+            $response->setHeaders($http_response_header);
+        }
+        $response->setResult($result);
+        return $response;
     }
 }

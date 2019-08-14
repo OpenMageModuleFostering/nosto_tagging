@@ -1,9 +1,9 @@
 <?php
 /**
  * Magento
- *  
+ *
  * NOTICE OF LICENSE
- *  
+ *
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is bundled with this package in the file LICENSE.txt.
  * It is also available through the world-wide-web at this URL:
@@ -11,17 +11,17 @@
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
  * to license@magentocommerce.com so we can send you a copy immediately.
- *  
+ *
  * DISCLAIMER
- *  
+ *
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
- *  
+ *
  * @category  Nosto
  * @package   Nosto_Tagging
  * @author    Nosto Solutions Ltd <magento@nosto.com>
- * @copyright Copyright (c) 2013-2017 Nosto Solutions Ltd (http://www.nosto.com)
+ * @copyright Copyright (c) 2013-2015 Nosto Solutions Ltd (http://www.nosto.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 
@@ -35,18 +35,17 @@
  */
 class Nosto_Tagging_Block_Adminhtml_Iframe extends Mage_Adminhtml_Block_Template
 {
-    const DEFAULT_IFRAME_ORIGIN_REGEXP = '(https:\/\/(.*)\.hub\.nosto\.com)|(https:\/\/my\.nosto\.com)';
-    const IFRAME_VERSION = 1;
+    const DEFAULT_ADMIN_IFRAME_ORIGIN = 'https://my.nosto.com';
 
     /**
      * @var string the iframe url if SSO to Nosto can be made.
      */
-    protected $_iframeUrl;
+    private $_iframeUrl;
 
     /**
      * @var Mage_Core_Model_Store the currently selected store view.
      */
-    protected $_store;
+    private $_store;
 
     /**
      * Gets the iframe url for the account settings page from Nosto.
@@ -67,29 +66,18 @@ class Nosto_Tagging_Block_Adminhtml_Iframe extends Mage_Adminhtml_Block_Template
         $session = Mage::getSingleton('adminhtml/session');
         if ($session !== null) {
             $nostoMessage = $session->getData('nosto_message');
-            if (!empty($nostoMessage)) {
+            if (is_array($nostoMessage)) {
                 if (isset($nostoMessage['type'], $nostoMessage['code'])) {
                     $params['message_type'] = $nostoMessage['type'];
                     $params['message_code'] = $nostoMessage['code'];
-                    if (isset($nostoMessage['text'])) {
-                        $params['message_text'] = $nostoMessage['text'];
-                    }
                 }
                 $session->setData('nosto_message', null);
             }
         }
-        $params['v'] = self::IFRAME_VERSION;
         $store = $this->getSelectedStore();
-        /* @var Mage_Core_Model_App_Emulation $emulation */
-        $emulation = Mage::getSingleton('core/app_emulation');
-        $env = $emulation->startEnvironmentEmulation($store->getId());
-        /** @var Nosto_Tagging_Helper_Account $helper */
-        $helper = Mage::helper('nosto_tagging/account');
-        $account = $helper->find($store);
-        $this->_iframeUrl = $helper->getIframeUrl($store, $account, $params);
-        $emulation->stopEnvironmentEmulation($env);
-
-        return $this->_iframeUrl;
+        $account = Mage::helper('nosto_tagging/account')->find($store);
+        return $this->_iframeUrl = Mage::helper('nosto_tagging/account')
+            ->getIframeUrl($store, $account, $params);
     }
 
     /**
@@ -126,6 +114,6 @@ class Nosto_Tagging_Block_Adminhtml_Iframe extends Mage_Adminhtml_Block_Template
     public function getIframeOrigin()
     {
         return (string)Mage::app()->getRequest()
-            ->getEnv('NOSTO_IFRAME_ORIGIN_REGEXP', self::DEFAULT_IFRAME_ORIGIN_REGEXP);
+            ->getEnv('NOSTO_IFRAME_ORIGIN', self::DEFAULT_ADMIN_IFRAME_ORIGIN);
     }
 }
