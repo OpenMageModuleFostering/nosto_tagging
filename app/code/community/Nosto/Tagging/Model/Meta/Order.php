@@ -102,7 +102,14 @@ class Nosto_Tagging_Model_Meta_Order extends Mage_Core_Model_Abstract implements
         $this->_orderNumber = $order->getId();
         $this->_externalOrderRef = $order->getRealOrderId();
         $this->_createdDate = $order->getCreatedAt();
-        $this->_paymentProvider = $order->getPayment()->getMethod();
+        if (
+            $order->getPayment()
+            && method_exists($order->getPayment(), 'getMethod')
+        ) {
+            $this->_paymentProvider = $order->getPayment()->getMethod();
+        } else {
+            $this->_paymentProvider = '';
+        }
 
         if ($order->getStatus()) {
             $this->_orderStatus = Mage::getModel(
@@ -143,14 +150,14 @@ class Nosto_Tagging_Model_Meta_Order extends Mage_Core_Model_Abstract implements
         }
 
         if ($this->includeSpecialItems) {
-            if (($discount = $order->getDiscountAmount()) > 0) {
+            if (($discount = $order->getDiscountAmount()) < 0) {
                 /** @var Nosto_Tagging_Model_Meta_Order_Item $orderItem */
                 $this->_items[] = Mage::getModel(
                     'nosto_tagging/meta_order_item',
                     array(
                         'productId' => -1,
                         'quantity' => 1,
-                        'name' => 'Discount',
+                        'name' => $this->buildDiscountRuleDescription($order),
                         'unitPrice' => $discount,
                         'currencyCode' => $order->getOrderCurrencyCode()
                     )
@@ -174,6 +181,40 @@ class Nosto_Tagging_Model_Meta_Order extends Mage_Core_Model_Abstract implements
     }
 
     /**
+     * Generates a textual description of the applied discount rules
+     *
+     * @param Mage_Sales_Model_Order $order
+     * @return string discount description
+     */
+    protected function buildDiscountRuleDescription(Mage_Sales_Model_Order $order)
+    {
+        try {
+            $appliedRules = array();
+            foreach ($order->getAllVisibleItems() as $item) {
+                $itemAppliedRules = $item->getAppliedRuleIds();
+                if (empty($itemAppliedRules)) {
+                    continue;
+                }
+                $ruleIds = explode(',', $item->getAppliedRuleIds());
+                foreach ($ruleIds as $ruleId) {
+                    $rule = Mage::getModel('salesrule/rule')->load($ruleId);
+                    $appliedRules[$ruleId] = $rule->getName();
+                }
+            }
+            if (count($appliedRules) == 0) {
+                $appliedRules[] = 'unknown rule';
+            }
+            $discountTxt = sprintf(
+                'Discount (%s)', implode(', ', $appliedRules)
+            );
+        } catch(\Exception $e) {
+            $discountTxt = 'Discount (error)';
+        }
+
+        return $discountTxt;
+    }
+
+    /**
      * Builds a order items object form the Magento sales item.
      *
      * @param Mage_Sales_Model_Order_Item $item the sales item model.
@@ -183,13 +224,15 @@ class Nosto_Tagging_Model_Meta_Order extends Mage_Core_Model_Abstract implements
      */
     protected function buildItem(Mage_Sales_Model_Order_Item $item, Mage_Sales_Model_Order $order)
     {
+        /* @var Nosto_Tagging_Helper_Price */
+        $nostoPriceHelper = Mage::helper('nosto_tagging/price');
         return Mage::getModel(
             'nosto_tagging/meta_order_item',
             array(
                 'productId' => (int)$this->buildItemProductId($item),
                 'quantity' => (int)$item->getQtyOrdered(),
                 'name' => $this->buildItemName($item),
-                'unitPrice' => $item->getPriceInclTax(),
+                'unitPrice' => $nostoPriceHelper->getItemFinalPriceInclTax($item),
                 'currencyCode' => $order->getOrderCurrencyCode()
             )
         );

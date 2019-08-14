@@ -166,7 +166,7 @@ class Nosto_Tagging_Adminhtml_NostoController extends Mage_Adminhtml_Controller_
                 }
             } catch (NostoException $e) {
                 Mage::log(
-                    "\n" . $e->__toString(), Zend_Log::ERR, 'nostotagging.log'
+                    "\n" . $e->__toString(), Zend_Log::ERR, Nosto_Tagging_Model_Base::LOG_FILE_NAME
                 );
             }
         }
@@ -250,5 +250,15 @@ class Nosto_Tagging_Adminhtml_NostoController extends Mage_Adminhtml_Controller_
         } else {
             return null;
         }
+    }
+
+    /**
+     * Checks if logged in user has privilege to access Nosto settings
+     *
+     * @return boolean
+     */
+    protected function _isAllowed()
+    {
+        return Mage::getSingleton('admin/session')->isAllowed('nosto');
     }
 }

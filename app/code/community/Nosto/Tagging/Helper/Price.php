@@ -127,4 +127,44 @@ class Nosto_Tagging_Helper_Price extends Mage_Core_Helper_Abstract
 
         return $price;
     }
+
+    /**
+     * @param float $price
+     * @param Mage_Core_Model_Store $store
+     * @return float
+     */
+    public function convertToDefaultCurrency($price, Mage_Core_Model_Store $store)
+    {
+        if (!is_numeric($price)) {
+            Mage::log(
+                sprintf(
+                    'price must be a numeric value in %s, got %s.',
+                    __CLASS__,
+                    $price
+                ),
+                Zend_Log::WARN,
+                Nosto_Tagging_Model_Base::LOG_FILE_NAME
+            );
+            $price = 0;
+        }
+        return Mage::helper('directory')->currencyConvert(
+            $price,
+            $store->getBaseCurrency()->getCode(),
+            $store->getDefaultCurrency()->getCode()
+        );
+    }
+
+    /**
+     * Get the final price in base currency for an ordered item including
+     * taxes as discounts.
+     *
+     * @param Mage_Sales_Model_Order_Item $item the item model.
+     *
+     * @return float
+     */
+    public function getItemFinalPriceInclTax(Mage_Sales_Model_Order_Item $item)
+    {
+        $price = $item->getBaseRowTotal() + $item->getBaseTaxAmount() + $item->getBaseHiddenTaxAmount() - $item->getBaseDiscountAmount();
+        return $price;
+    }
 }
