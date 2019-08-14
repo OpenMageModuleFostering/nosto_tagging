@@ -1,9 +1,9 @@
 <?php
 /**
  * Magento
- *
+ *  
  * NOTICE OF LICENSE
- *
+ *  
  * This source file is subject to the Open Software License (OSL 3.0)
  * that is bundled with this package in the file LICENSE.txt.
  * It is also available through the world-wide-web at this URL:
@@ -11,17 +11,17 @@
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
  * to license@magentocommerce.com so we can send you a copy immediately.
- *
+ *  
  * DISCLAIMER
- *
+ *  
  * Do not edit or add to this file if you wish to upgrade Magento to newer
  * versions in the future. If you wish to customize Magento for your
  * needs please refer to http://www.magentocommerce.com for more information.
- *
- * @category  design
- * @package   frontend_base_default
+ *  
+ * @category  Nosto
+ * @package   Nosto_Tagging
  * @author    Nosto Solutions Ltd <magento@nosto.com>
- * @copyright Copyright (c) 2013-2015 Nosto Solutions Ltd (http://www.nosto.com)
+ * @copyright Copyright (c) 2013-2016 Nosto Solutions Ltd (http://www.nosto.com)
  * @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
  */
 ?>
@@ -33,9 +33,17 @@ $formKey = Mage::getSingleton('core/session')->getFormKey();
 <!-- Nosto `add-to-cart` Script -->
 <script type="text/javascript">
     if (typeof Nosto === "undefined") {
-    var Nosto = {};
+        var Nosto = {};
     }
-    Nosto.addProductToCart = function (productId) {
+    Nosto.addProductToCart = function (productId, element) {
+        if (typeof nostojs !== 'undefined' && typeof element == 'object') {
+            var slotId = Nosto.resolveContextSlotId(element);
+            if (slotId) {
+                nostojs(function (api) {
+                    api.recommendedProductAddedToCart(productId, slotId);
+                });
+            }
+        }
         var form = document.createElement("form");
         form.setAttribute("method", "post");
         form.setAttribute("action", "<?php echo $formAction; ?>");
@@ -45,8 +53,8 @@ $formKey = Mage::getSingleton('core/session')->getFormKey();
             "form_key": "<?php echo $formKey; ?>"
         };
 
-        for(var key in hiddenFields) {
-            if(hiddenFields.hasOwnProperty(key)) {
+        for (var key in hiddenFields) {
+            if (hiddenFields.hasOwnProperty(key)) {
                 var hiddenField = document.createElement("input");
                 hiddenField.setAttribute("type", "hidden");
                 hiddenField.setAttribute("name", key);
@@ -58,4 +66,21 @@ $formKey = Mage::getSingleton('core/session')->getFormKey();
         document.body.appendChild(form);
         form.submit();
     };
+    Nosto.resolveContextSlotId = function (element) {
+        var m = 20;
+        var n = 0;
+        var e = element;
+        while (typeof e.parentElement !== "undefined" && e.parentElement) {
+            ++n;
+            e = e.parentElement;
+            if (e.getAttribute('class') == 'nosto_element' && e.getAttribute('id')) {
+                return e.getAttribute('id');
+            }
+            if (n >= m) {
+                return false;
+            }
+        }
+        return false;
+    }
+
 </script>

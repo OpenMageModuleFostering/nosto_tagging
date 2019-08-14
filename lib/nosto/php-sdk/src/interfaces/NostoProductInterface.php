@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2015, Nosto Solutions Ltd
+ * Copyright (c) 2016, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,8 +29,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2015 Nosto Solutions Ltd
+ * @copyright 2016 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
+ *
  */
 
 /**
@@ -39,6 +40,12 @@
  */
 interface NostoProductInterface
 {
+    const IN_STOCK = 'InStock';
+    const OUT_OF_STOCK = 'OutOfStock';
+    const INVISIBLE = 'Invisible';
+    const DISCONTINUED = 'Discontinued';
+    const ADD_TO_CART = 'add-to-cart';
+
     /**
      * Returns the absolute url to the product page in the shop frontend.
      *
@@ -144,4 +151,11 @@ interface NostoProductInterface
      * @return string the date in format "Y-m-d".
      */
     public function getDatePublished();
+
+    /**
+     * Returns the product variation id.
+     *
+     * @return mixed|null
+     */
+    public function getVariationId();
 }

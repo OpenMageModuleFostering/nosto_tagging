@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2015, Nosto Solutions Ltd
+ * Copyright (c) 2016, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,8 +29,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2015 Nosto Solutions Ltd
+ * @copyright 2016 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
+ *
  */
 
 /**
@@ -42,6 +43,23 @@
  */
 class NostoHttpRequestAdapterSocket extends NostoHttpRequestAdapter
 {
+
+    /**
+     * @var string the user-agent to use if specified
+     */
+    private $userAgent = false;
+
+    /**
+     * Constructor.
+     * Creates the http request adapter with the specified user-agent
+     *
+     * @param $userAgent string the user-agent header for all requests
+     */
+    public function __construct($userAgent)
+    {
+        $this->userAgent = $userAgent;
+    }
+
     /**
      * @inheritdoc
      */
@@ -129,6 +147,9 @@ class NostoHttpRequestAdapterSocket extends NostoHttpRequestAdapter
      */
     protected function send($url, array $streamOptions)
     {
+        if (!array_key_exists('user_agent', $streamOptions['http']) && $this->userAgent) {
+            $streamOptions['http']['user_agent'] = $this->userAgent;
+        }
         $context = stream_context_create($streamOptions);
         // We use file_get_contents() directly here as we need the http response headers which are automatically
         // populated into $headers, which is only available in the local scope where file_get_contents()

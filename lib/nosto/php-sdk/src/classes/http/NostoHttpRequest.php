@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2015, Nosto Solutions Ltd
+ * Copyright (c) 2016, Nosto Solutions Ltd
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -29,8 +29,9 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  * @author Nosto Solutions Ltd <contact@nosto.com>
- * @copyright 2015 Nosto Solutions Ltd
+ * @copyright 2016 Nosto Solutions Ltd
  * @license http://opensource.org/licenses/BSD-3-Clause BSD 3-Clause
+ *
  */
 
 /**
@@ -48,6 +49,11 @@ class NostoHttpRequest
      * @var string base url for the nosto web hook requests.
      */
     public static $baseUrl = 'https://my.nosto.com';
+
+    /**
+     * @var string user-agent to use for all requests
+     */
+    public static $userAgent = '';
 
     /**
      * @var string the request url.
@@ -92,9 +98,9 @@ class NostoHttpRequest
         if ($adapter !== null) {
             $this->adapter = $adapter;
         } elseif (function_exists('curl_exec')) {
-            $this->adapter = new NostoHttpRequestAdapterCurl();
+            $this->adapter = new NostoHttpRequestAdapterCurl(self::$userAgent);
         } else {
-            $this->adapter = new NostoHttpRequestAdapterSocket();
+            $this->adapter = new NostoHttpRequestAdapterSocket(self::$userAgent);
         }
     }
 
@@ -412,6 +418,19 @@ class NostoHttpRequest
                 'headers' => $this->headers,
             )
         );
+    }
+
+    /**
+     * Builds the custom-user agent by using the platform's name and version with the
+     * plugin version
+     *
+     * @param string $platformName the name of the platform using the SDK
+     * @param array $platformVersion the version of the platform using the SDK
+     * @param array $pluginVersion the version of the plugin using the SDK
+     */
+    public static function buildUserAgent($platformName, $platformVersion, $pluginVersion)
+    {
+        self::$userAgent = sprintf('Nosto %s / %s %s', $pluginVersion, $platformName, $platformVersion);
     }
 
     /**
