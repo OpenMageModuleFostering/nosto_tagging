@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <package>
   <name>Nosto_Tagging</name>
-  <version>2.6.11</version>
+  <version>2.6.12</version>
   <stability>stable</stability>
   <license uri="http://opensource.org/licenses/osl-3.0.php">OSL</license>
   <channel>community</channel>
   <extends/>
   <summary>Personalization for Magento</summary>
   <description>Increase your conversion rate and average order value by delivering your customers personalized product recommendations throughout their shopping journey.</description>
-  <notes>- Remove type casting from templates&amp;#xD;- Add search term tagging&amp;#xD;- Bug fixes</notes>
+  <notes>- Restore the type casting to quantity</notes>
   <authors>
     <author>
       <name>Nosto</name>
@@ -17,7 +17,7 @@
     </author>
   </authors>
   <date>2016-04-22</date>
-  <time>11:48:05</time>
+  <time>08:48:05</time>
   <contents>
     <target name="magecommunity">
       <dir name="Nosto">
@@ -56,7 +56,7 @@
             <file name="Customer.php" hash="6d992a43a75f29836ed1450e130df560"/>
             <dir name="Export">
               <dir name="Collection">
-                <file name="Order.php" hash="c342dc1c1523b9e05255d200c879faab"/>
+                <file name="Order.php" hash="29c370bdfcaedab833df0abcc83f9f32"/>
               </dir>
             </dir>
             <dir name="Meta">
@@ -72,7 +72,7 @@
                 <file name="Item.php" hash="d28e1c901b168ad381696dde605551db"/>
                 <file name="Status.php" hash="795b2e53be043aeb0b27bbd500e2c412"/>
               </dir>
-              <file name="Order.php" hash="4dfb4ee6425ca5f856ac56001f68753e"/>
+              <file name="Order.php" hash="1a5d115199f87ead195e0b3510ab1439"/>
               <file name="Product.php" hash="77997c199edc6f9c29d29e138b8abff1"/>
             </dir>
             <file name="Observer.php" hash="ba384c965a2df4044cab0a84bbeacd38"/>
@@ -108,7 +108,7 @@
           <dir name="etc">
             <file name="adminhtml.xml" hash="7ea210738a77630f299a14b442f3b8d0"/>
             <file name="cache.xml" hash="e874fbbf2eb89b325deb1a62afbcfb4d"/>
-            <file name="config.xml" hash="129ecf2782480b02199a0dad77d20205"/>
+            <file name="config.xml" hash="86f27a81f45c3aafb0a079f837b73a99"/>
             <file name="system.xml" hash="7deba6544a09d7af8c07e6b5edc0975a"/>
           </dir>
           <dir name="sql">
