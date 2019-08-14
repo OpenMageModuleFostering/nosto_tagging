@@ -1,0 +1,215 @@
+<?xml version="1.0"?>
+<!--
+  ~ Magento
+  ~
+  ~ NOTICE OF LICENSE
+  ~
+  ~ This source file is subject to the Open Software License (OSL 3.0)
+  ~ that is bundled with this package in the file LICENSE.txt.
+  ~ It is also available through the world-wide-web at this URL:
+  ~ http://opensource.org/licenses/osl-3.0.php
+  ~ If you did not receive a copy of the license and are unable to
+  ~ obtain it through the world-wide-web, please send an email
+  ~ to license@magentocommerce.com so we can send you a copy immediately.
+  ~
+  ~ DISCLAIMER
+  ~
+  ~ Do not edit or add to this file if you wish to upgrade Magento to newer
+  ~ versions in the future. If you wish to customize Magento for your
+  ~ needs please refer to http://www.magentocommerce.com for more information.
+  ~
+  ~ @category  Nosto
+  ~ @package   Nosto_Tagging
+  ~ @author    Nosto Solutions Ltd <magento@nosto.com>
+  ~ @copyright Copyright (c) 2013-2017 Nosto Solutions Ltd (http://www.nosto.com)
+  ~ @license   http://opensource.org/licenses/osl-3.0.php  Open Software License (OSL 3.0)
+  -->
+<!--suppress XmlUnboundNsPrefix -->
+<config>
+    <modules>
+        <Nosto_Tagging>
+            <version>2.10.0</version>
+        </Nosto_Tagging>
+    </modules>
+    <global>
+        <resources>
+            <tagging_setup>
+                <setup>
+                    <module>Nosto_Tagging</module>
+                    <class>Mage_Eav_Model_Entity_Setup</class>
+                </setup>
+            </tagging_setup>
+            <nosto_customer_reference_setup>
+                <setup>
+                    <module>Nosto_Tagging</module>
+                    <class>Mage_Eav_Model_Entity_Setup</class>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </nosto_customer_reference_setup>
+            <nosto_customer_reference_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </nosto_customer_reference_write>
+            <nosto_customer_reference_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </nosto_customer_reference_read>
+        </resources>
+        <blocks>
+            <nosto_tagging>
+                <class>Nosto_Tagging_Block</class>
+            </nosto_tagging>
+        </blocks>
+        <helpers>
+            <nosto_tagging>
+                <class>Nosto_Tagging_Helper</class>
+            </nosto_tagging>
+        </helpers>
+        <models>
+            <nosto_tagging>
+                <class>Nosto_Tagging_Model</class>
+                <resourceModel>nosto_tagging_resource</resourceModel>
+            </nosto_tagging>
+            <nosto_tagging_resource>
+                <class>Nosto_Tagging_Model_Resource</class>
+                <entities>
+                    <customer>
+                        <table>nosto_tagging_customer</table>
+                    </customer>
+                </entities>
+            </nosto_tagging_resource>
+        </models>
+        <events>
+            <catalog_product_save_commit_after>
+                <observers>
+                    <nosto_tagging_catalog_product_save_commit_after>
+                        <type>singleton</type>
+                        <class>Nosto_Tagging_Model_Observer</class>
+                        <method>sendProductUpdate</method>
+                    </nosto_tagging_catalog_product_save_commit_after>
+                </observers>
+            </catalog_product_save_commit_after>
+            <catalog_product_delete_commit_after>
+                <observers>
+                    <nosto_tagging_catalog_product_delete_commit_after>
+                        <type>singleton</type>
+                        <class>Nosto_Tagging_Model_Observer</class>
+                        <method>sendProductDelete</method>
+                    </nosto_tagging_catalog_product_delete_commit_after>
+                </observers>
+            </catalog_product_delete_commit_after>
+            <sales_order_save_commit_after>
+                <observers>
+                    <nosto_tagging_sales_order_save_commit_after>
+                        <type>singleton</type>
+                        <class>Nosto_Tagging_Model_Observer</class>
+                        <method>sendOrderConfirmation</method>
+                    </nosto_tagging_sales_order_save_commit_after>
+                </observers>
+            </sales_order_save_commit_after>
+            <admin_system_config_changed_section_nosto_tagging>
+                <observers>
+                    <nosto_tagging_custom>
+                        <type>singleton</type>
+                        <class>Nosto_Tagging_Model_Observer</class>
+                        <method>syncNostoAccount</method>
+                    </nosto_tagging_custom>
+                </observers>
+            </admin_system_config_changed_section_nosto_tagging>
+        </events>
+    </global>
+    <adminhtml>
+        <layout>
+            <updates>
+                <nosto_tagging>
+                    <file>nostotagging.xml</file>
+                </nosto_tagging>
+            </updates>
+        </layout>
+        <translate>
+            <modules>
+                <Nosto_Tagging>
+                    <files>
+                        <default>Nosto_Tagging.csv</default>
+                    </files>
+                </Nosto_Tagging>
+            </modules>
+        </translate>
+    </adminhtml>
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <nosto_tagging after="Mage_Adminhtml">Nosto_Tagging_Adminhtml</nosto_tagging>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
+    <frontend>
+        <events>
+            <controller_action_layout_load_before>
+                <observers>
+                    <nosto_tagging_layout_load_before>
+                        <type>singleton</type>
+                        <class>Nosto_Tagging_Model_Observer</class>
+                        <method>addBlockAfterMainContent</method>
+                    </nosto_tagging_layout_load_before>
+                </observers>
+            </controller_action_layout_load_before>
+        </events>
+        <layout>
+            <updates>
+                <nosto_tagging>
+                    <file>nostotagging.xml</file>
+                </nosto_tagging>
+            </updates>
+        </layout>
+        <routers>
+            <nosto>
+                <use>standard</use>
+                <args>
+                    <module>Nosto_Tagging</module>
+                    <frontName>nosto</frontName>
+                </args>
+            </nosto>
+        </routers>
+    </frontend>
+    <default>
+        <nosto_tagging>
+            <general>
+                <use_product_api>1</use_product_api>
+            </general>
+            <image_options>
+                <image_version>image</image_version>
+            </image_options>
+            <multi_currency>
+                <method>disabled</method>
+            </multi_currency>
+            <brand_attribute>
+                <tag>manufacturer</tag>
+            </brand_attribute>
+            <attribute_map>
+                <gtin>0</gtin>
+                <supplier_cost>cost</supplier_cost>
+            </attribute_map>
+            <ratings_and_reviews>
+                <provider>0</provider>
+            </ratings_and_reviews>
+        </nosto_tagging>
+    </default>
+    <crontab>
+        <jobs>
+            <nostotagging_currency_exchange_rate_update>
+                <run>
+                    <model>nosto_tagging/observer::scheduledCurrencyExchangeRateUpdate</model>
+                </run>
+            </nostotagging_currency_exchange_rate_update>
+        </jobs>
+    </crontab>
+</config>
