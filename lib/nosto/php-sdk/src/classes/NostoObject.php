@@ -34,43 +34,25 @@
  */
 
 /**
- * Order collection for historical data exports.
- * Supports only items implementing "NostoOrderInterface".
+ * Base class for Nosto objects to share basic functionality.
  */
-class NostoExportOrderCollection extends NostoOrderCollection implements NostoExportCollectionInterface
+abstract class NostoObject
 {
     /**
-     * @inheritdoc
+     * Returns a protected/private property value by invoking it's public getter.
+     *
+     * The getter names are assumed to be the property name in camel case with preceding word "get".
+     *
+     * @param string $name the property name.
+     * @return mixed the property value.
+     * @throws NostoException if public getter does not exist.
      */
-    public function getJson()
+    public function __get($name)
     {
-        $array = array();
-        /** @var NostoOrderInterface $item */
-        foreach ($this->getArrayCopy() as $item) {
-            $data = array(
-                'order_number' => $item->getOrderNumber(),
-                'order_status_code' => $item->getOrderStatus()->getCode(),
-                'order_status_label' => $item->getOrderStatus()->getLabel(),
-                'created_at' => Nosto::helper('date')->format($item->getCreatedDate()),
-                'buyer' => array(
-                    'first_name' => $item->getBuyerInfo()->getFirstName(),
-                    'last_name' => $item->getBuyerInfo()->getLastName(),
-                    'email' => $item->getBuyerInfo()->getEmail(),
-                ),
-                'payment_provider' => $item->getPaymentProvider(),
-                'purchased_items' => array(),
-            );
-            foreach ($item->getPurchasedItems() as $orderItem) {
-                $data['purchased_items'][] = array(
-                    'product_id' => $orderItem->getProductId(),
-                    'quantity' => (int)$orderItem->getQuantity(),
-                    'name' => $orderItem->getName(),
-                    'unit_price' => Nosto::helper('price')->format($orderItem->getUnitPrice()),
-                    'price_currency_code' => strtoupper($orderItem->getCurrencyCode()),
-                );
-            }
-            $array[] = $data;
+        $getter = 'get'.str_replace('_', '', $name);
+        if (method_exists($this, $getter)) {
+            return $this->{$getter}();
         }
-        return json_encode($array);
+        throw new NostoException(sprintf('Property `%s.%s` is not defined.', get_class($this), $name));
     }
 }

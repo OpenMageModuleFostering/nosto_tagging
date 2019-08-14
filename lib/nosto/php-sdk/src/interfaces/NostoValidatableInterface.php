@@ -34,12 +34,12 @@
  */
 
 /**
- * Interface for all models that support data validation.
+ * Interface for all objects that support data validation.
  */
-interface NostoValidatableModelInterface
+interface NostoValidatableInterface
 {
     /**
-     * Returns an array of validator rules for the model properties.
+     * Returns an array of validator rules for the object properties.
      *
      * Example:
      *
