@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>Nosto_Tagging</name>
-  <version>2.7.0</version>
+  <version>2.7.1</version>
   <stability>stable</stability>
   <license uri="http://opensource.org/licenses/osl-3.0.php">OSL</license>
   <channel>community</channel>
@@ -46,7 +46,7 @@
             <file name="Date.php" hash="7d1b55282770627291f781dc9dd55eff"/>
             <file name="Oauth.php" hash="a9ddbf62971f77b3e86c05bb4a23ee66"/>
             <file name="Price.php" hash="79218677cb2d9082b02227e7f433e26c"/>
-            <file name="Url.php" hash="c912585c83df2861c4883cbd236d4f17"/>
+            <file name="Url.php" hash="23b8bf21bd05ee83af0f8e4335414a03"/>
           </dir>
           <dir name="Model">
             <file name="Base.php" hash="512d57dbb91fec6b61d331ffacc93f20"/>
@@ -74,9 +74,6 @@
                 <file name="Status.php" hash="1277dabe24836edc27bba448a0c33afe"/>
               </dir>
               <file name="Order.php" hash="c402e82e20a2282bfe545a9c4481c7b9"/>
-              <dir name="Product">
-                <file name="Url.php" hash="b37921e527ea1e3aa1fef61026d96bf6"/>
-              </dir>
               <file name="Product.php" hash="ad61636e3843645b5385ff126fe5618a"/>
             </dir>
             <file name="Observer.php" hash="035c26e5ccc456c28966d489ee514087"/>
@@ -116,7 +113,7 @@
           <dir name="etc">
             <file name="adminhtml.xml" hash="485ad85df190403f03391ffea0ecac2a"/>
             <file name="cache.xml" hash="c63a5c181de4a93e7dccd5c485e167ff"/>
-            <file name="config.xml" hash="7fca93c7f3fbf95f7cd44de38681d7ba"/>
+            <file name="config.xml" hash="02e41bc18ddd7ab1cc6781a7b52ae357"/>
             <file name="system.xml" hash="b9e1aa19b256ccfdc5e4869d652ca1b9"/>
           </dir>
           <dir name="sql">
