@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>Nosto_Tagging</name>
-  <version>2.8.0</version>
+  <version>2.8.1</version>
   <stability>stable</stability>
   <license uri="http://opensource.org/licenses/osl-3.0.php">OSL</license>
   <channel>community</channel>
@@ -146,7 +146,7 @@
           <dir name="etc">
             <file name="adminhtml.xml" hash="94c1710b2a8f0b7b0a15918f7c88d975"/>
             <file name="cache.xml" hash="b034f279196c596f2602102bd5e44c2c"/>
-            <file name="config.xml" hash="5743108251006b6676d5b9627dddb99d"/>
+            <file name="config.xml" hash="7bd3c51a1432c468cca56bdb12860eea"/>
             <file name="system.xml" hash="376a97fabcaab7ec6b433e3a3fcde835"/>
           </dir>
           <dir name="sql">
@@ -201,7 +201,7 @@
                 <file name="embed.phtml" hash="9980a5cd3fb315962e052497127b8332"/>
                 <file name="meta.phtml" hash="0f409190231247732707e17766364233"/>
                 <file name="order.phtml" hash="69ee18e576e0afa297ef5c96f1b4d812"/>
-                <file name="pagetype.phtml" hash="1640c6566981f767fb6536b293b7bd45"/>
+                <file name="pagetype.phtml" hash="9ecf0d771936492f41f07add170455f5"/>
                 <file name="product.phtml" hash="472c255b7d3ef59052d1563c4627009a"/>
                 <file name="searchterm.phtml" hash="f3f87d0f7757a96307aa87ce03e5f292"/>
                 <file name="variation.phtml" hash="80cf94a8a820ef595ee992df1e0eba7d"/>
