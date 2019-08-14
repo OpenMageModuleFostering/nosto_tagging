@@ -1,7 +1,7 @@
 {
     "name": "OpenMageModuleFostering/Nosto_Tagging",
     "type": "magento-module",
-    "license": "Open-Software-License-(OSL)",
+    "license": "OSL",
     "homepage": "",
     "description": "Personalization for Magento",
     "authors": [
