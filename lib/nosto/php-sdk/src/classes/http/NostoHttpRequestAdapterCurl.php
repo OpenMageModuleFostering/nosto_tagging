@@ -39,6 +39,10 @@
  */
 class NostoHttpRequestAdapterCurl extends NostoHttpRequestAdapter
 {
+	protected $curlOptions = array(
+
+	);
+
     /**
      * @inheritdoc
      */
