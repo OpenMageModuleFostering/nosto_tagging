@@ -1,16 +1,19 @@
 {
-    "name": "OpenMageModuleFostering/Nosto_Tagging",
+    "name": "OpenMageModuleFostering\/Nosto_Tagging",
     "type": "magento-module",
     "license": "OSL",
     "homepage": "",
     "description": "Personalization for Magento",
     "authors": [
-    {
-        "name": "Nosto",
-        "email": "magento@nosto.com"
-    }
-],
+        {
+            "name": "Nosto",
+            "email": "magento@nosto.com"
+        }
+    ],
     "suggest": {
-        "magento-hackathon/magento-composer-installer": "*"
-    }
+        "magento-hackathon\/magento-composer-installer": "*"
+    },
+    "keywords": [
+        "openmage-module"
+    ]
 }
